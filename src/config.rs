@@ -7,7 +7,7 @@ pub struct Config {
 	pub mention: Option<MentionMode>,
 	#[serde(default = "moderator_roles_default" /* [] */)]
 	pub moderator_roles: HashSet<serenity::RoleId>,
-	#[serde(default = "prefix_default" /* / */)]
+	#[serde(default = "prefix_default" /* = */)]
 	pub prefix: String,
 	#[serde(default = "status_default" /* Message me to contact mods! */)]
 	pub status: String,
@@ -39,7 +39,7 @@ fn moderator_roles_default() -> HashSet<serenity::RoleId> {
 }
 
 fn prefix_default() -> String {
-	"/".to_string()
+	"=".to_string()
 }
 
 fn status_default() -> String {

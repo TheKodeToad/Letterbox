@@ -20,6 +20,10 @@ pub async fn handle_incoming_message(
 		return Ok(());
 	}
 
+	if !(message.kind == serenity::MessageType::Regular || message.kind == serenity::MessageType::InlineReply) {
+		return Ok(());
+	}
+
 	let existing_thread_id = thread_target_from_source(&data.pg, message.channel_id.get()).await?;
 
 	if let Some(existing_thread_id) = existing_thread_id {

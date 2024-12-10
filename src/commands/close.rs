@@ -1,3 +1,4 @@
+use poise::serenity_prelude::EditThread;
 use poise::serenity_prelude as serenity;
 use poise::serenity_prelude::CreateAllowedMentions;
 use poise::serenity_prelude::CreateMessage;
@@ -7,7 +8,8 @@ use super::common::Context;
 use crate::data::threads::delete_thread_by_source;
 use crate::data::threads::thread_source_from_target;
 
-#[poise::command(slash_command, check = "require_moderator")]
+/// Close a ModMail thread.
+#[poise::command(slash_command, prefix_command, check = "require_moderator")]
 pub async fn close(context: Context<'_>) -> eyre::Result<()> {
 	let Some(dm_channel_id) =
 		thread_source_from_target(&context.data().pg, context.channel_id().get()).await?
@@ -38,6 +40,12 @@ pub async fn close(context: Context<'_>) -> eyre::Result<()> {
 		)
 		.await?;
 	context.say(&close_message).await?;
+
+	if let Context::Prefix(prefix) = context {
+		prefix.msg.delete(context).await.ok();
+	}
+
+	context.channel_id().edit_thread(&context.http(), EditThread::new().locked(true).archived(true)).await?;
 
 	Ok(())
 }
