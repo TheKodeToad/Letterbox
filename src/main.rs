@@ -1,8 +1,10 @@
+use core::error;
 use std::path::Path;
 
 use commands::commands;
 use config::Config;
 use data::migrations;
+use error_handler::handle_error;
 use event_handlers::handle_event;
 use poise::{
 	serenity_prelude::{self as serenity, ActivityData},
@@ -14,6 +16,7 @@ mod common;
 mod config;
 mod data;
 mod event_handlers;
+mod error_handler;
 
 pub struct Data {
 	config: Config,
@@ -38,6 +41,9 @@ async fn main() -> eyre::Result<()> {
 		},
 		event_handler: |context, event, _framework, data| {
 			Box::pin(handle_event(context, event, data))
+		},
+		on_error: |error| {
+			Box::pin(handle_error(error))
 		},
 		..Default::default()
 	};

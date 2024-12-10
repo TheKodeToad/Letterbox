@@ -15,7 +15,7 @@ pub async fn close(context: Context<'_>) -> eyre::Result<()> {
 		context
 			.send(
 				poise::CreateReply::default()
-					.content("❌ No open thread in this channel")
+					.content("❌ No open thread in this channel.")
 					.ephemeral(true),
 			)
 			.await?;
