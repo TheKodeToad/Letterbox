@@ -15,8 +15,8 @@ mod commands;
 mod common;
 mod config;
 mod data;
-mod event_handlers;
 mod error_handler;
+mod event_handlers;
 
 pub struct Data {
 	config: Config,
@@ -42,9 +42,7 @@ async fn main() -> eyre::Result<()> {
 		event_handler: |context, event, _framework, data| {
 			Box::pin(handle_event(context, event, data))
 		},
-		on_error: |error| {
-			Box::pin(handle_error(error))
-		},
+		on_error: |error| Box::pin(handle_error(error)),
 		..Default::default()
 	};
 	let framework = poise::Framework::builder()

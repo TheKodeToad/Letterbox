@@ -5,8 +5,8 @@ use std::{collections::HashSet, fs, path::Path};
 pub struct Config {
 	pub forum_channel_id: serenity::ChannelId,
 	pub mention: Option<MentionMode>,
-	#[serde(default = "moderator_roles_default" /* [] */)]
-	pub moderator_roles: HashSet<serenity::RoleId>,
+	#[serde(default = "staff_roles_default" /* [] */)]
+	pub staff_roles: HashSet<serenity::RoleId>,
 	#[serde(default = "prefix_default" /* = */)]
 	pub prefix: String,
 	#[serde(default = "status_default" /* Message me to contact mods! */)]
@@ -27,14 +27,14 @@ impl Config {
 		Ok(toml::from_str(&data)?)
 	}
 
-	pub fn is_moderator(&self, roles: &[RoleId]) -> bool {
-		roles.iter().any(|role| self.moderator_roles.contains(role))
+	pub fn is_staff(&self, roles: &[RoleId]) -> bool {
+		roles.iter().any(|role| self.staff_roles.contains(role))
 	}
 }
 
 // https://github.com/serde-rs/serde/issues/368
 
-fn moderator_roles_default() -> HashSet<serenity::RoleId> {
+fn staff_roles_default() -> HashSet<serenity::RoleId> {
 	HashSet::new()
 }
 

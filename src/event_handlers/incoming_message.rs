@@ -20,7 +20,9 @@ pub async fn handle_incoming_message(
 		return Ok(());
 	}
 
-	if !(message.kind == serenity::MessageType::Regular || message.kind == serenity::MessageType::InlineReply) {
+	if !(message.kind == serenity::MessageType::Regular
+		|| message.kind == serenity::MessageType::InlineReply)
+	{
 		return Ok(());
 	}
 
