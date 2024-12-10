@@ -4,6 +4,12 @@ const GENERIC_ERROR: &str = "❌ Something went wrong whilst executing this comm
 
 pub async fn handle_error(error: poise::FrameworkError<'_, Data, eyre::Report>) {
 	match error {
+		poise::FrameworkError::Setup { error, framework, .. } => {
+			log::error!("Error setting up framework; exiting...");
+			framework.shard_manager().shutdown_all().await;
+
+			panic!("{error}");
+		}
 		poise::FrameworkError::Command {
 			error,
 			ctx: context,
