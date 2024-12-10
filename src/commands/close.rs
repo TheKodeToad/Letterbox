@@ -11,6 +11,21 @@ use crate::data::threads::thread_source_from_target;
 /// Close a ModMail thread.
 #[poise::command(slash_command, prefix_command, check = "require_staff")]
 pub async fn close(context: Context<'_>) -> eyre::Result<()> {
+	Ok(close_impl(context, false).await?)
+}
+
+/// Close a ModMail thread anonymously.
+#[poise::command(
+	slash_command,
+	prefix_command,
+	check = "require_staff",
+	aliases("anonclose", "anonymousclose")
+)]
+pub async fn aclose(context: Context<'_>) -> eyre::Result<()> {
+	Ok(close_impl(context, true).await?)
+}
+
+async fn close_impl(context: Context<'_>, anon: bool) -> eyre::Result<()> {
 	let Some(dm_channel_id) =
 		thread_source_from_target(&context.data().pg, context.channel_id().get()).await?
 	else {
@@ -29,7 +44,11 @@ pub async fn close(context: Context<'_>) -> eyre::Result<()> {
 
 	delete_thread_by_source(&context.data().pg, dm_channel_id).await?;
 
-	let close_message = format!("⛔ Thread closed by <@{}>.", context.author().id);
+	let close_message = if anon {
+		format!("⛔ Thread closed.")
+	} else {
+		format!("⛔ Thread closed by <@{}>.", context.author().id)
+	};
 
 	dm_channel
 		.send_message(

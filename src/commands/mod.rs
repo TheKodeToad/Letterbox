@@ -1,6 +1,6 @@
 use close::close;
-use reply::reply;
 use reply::areply;
+use reply::reply;
 
 mod close;
 mod common;

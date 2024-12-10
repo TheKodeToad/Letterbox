@@ -14,7 +14,10 @@ pub async fn handle_incoming_message(
 	let result = handle_incoming_message_impl(context, message, data).await;
 
 	if let Err(error) = result {
-		message.react(&context, serenity::ReactionType::Unicode("❌".to_string())).await.ok();
+		message
+			.react(&context, serenity::ReactionType::Unicode("❌".to_string()))
+			.await
+			.ok();
 
 		return Err(error);
 	}

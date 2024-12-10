@@ -40,7 +40,10 @@ pub async fn handle_error(error: poise::FrameworkError<'_, Data, eyre::Report>) 
 			}
 		}
 		poise::FrameworkError::EventHandler { error, event, .. } => {
-			log::error!("Event handler encountered an error on {}:\n{error:?}", event.snake_case_name());
+			log::error!(
+				"Event handler encountered an error on {}:\n{error:?}",
+				event.snake_case_name()
+			);
 		}
 		_ => {
 			if let Err(error) = poise::builtins::on_error(error).await {
