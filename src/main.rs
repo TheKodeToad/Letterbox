@@ -26,6 +26,7 @@ pub struct Data {
 #[tokio::main]
 async fn main() -> eyre::Result<()> {
 	dotenvy::dotenv().ok();
+	color_eyre::install()?;
 	env_logger::init();
 
 	let bot_token = std::env::var("DISCORD_BOT_TOKEN")?;

@@ -10,7 +10,7 @@ pub async fn handle_error(error: poise::FrameworkError<'_, Data, eyre::Report>) 
 			..
 		} => {
 			log::error!(
-				"Error executing command {}:\n{error:#?}",
+				"Error executing command {}:\n{error:?}",
 				context.command().name
 			);
 
@@ -23,7 +23,7 @@ pub async fn handle_error(error: poise::FrameworkError<'_, Data, eyre::Report>) 
 		} => {
 			if let Some(error) = error {
 				log::error!(
-					"Error checking permissions for {}:\n{error:#?}",
+					"Error checking permissions for {}:\n{error:?}",
 					context.command().name
 				);
 
@@ -39,9 +39,12 @@ pub async fn handle_error(error: poise::FrameworkError<'_, Data, eyre::Report>) 
 					.ok();
 			}
 		}
+		poise::FrameworkError::EventHandler { error, event, .. } => {
+			log::error!("Event handler encountered an error on {}:\n{error:?}", event.snake_case_name());
+		}
 		_ => {
 			if let Err(error) = poise::builtins::on_error(error).await {
-				log::error!("Unhandled error in Poise's built in error handler:{error:#?}");
+				log::error!("Unhandled error in Poise's built in error handler:\n{error:?}");
 			}
 		}
 	}

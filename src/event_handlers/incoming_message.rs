@@ -11,6 +11,22 @@ pub async fn handle_incoming_message(
 	message: &serenity::Message,
 	data: &Data,
 ) -> eyre::Result<()> {
+	let result = handle_incoming_message_impl(context, message, data).await;
+
+	if let Err(error) = result {
+		message.react(&context, serenity::ReactionType::Unicode("❌".to_string())).await.ok();
+
+		return Err(error);
+	}
+
+	Ok(())
+}
+
+async fn handle_incoming_message_impl(
+	context: &serenity::Context,
+	message: &serenity::Message,
+	data: &Data,
+) -> eyre::Result<()> {
 	// if discord introduces another type of channel this could break :(
 	if message.guild_id.is_some() {
 		return Ok(());
