@@ -14,10 +14,10 @@ pub async fn handle_error(error: poise::FrameworkError<'_, Data, eyre::Report>) 
 				log::error!("Error checking permissions for {}:\n{error:#?}", context.command().name);
 
 				context.say(GENERIC_ERROR).await.ok();
-			} else {
+			} else if matches!(context, poise::Context::Application(_)) {
 				context.send(poise::CreateReply::default().content("❌ Permission denied.").ephemeral(true)).await.ok();
 			}
-		}
+		},
 		_ => {
 			if let Err(error) = poise::builtins::on_error(error).await {
 				log::error!("Unhandled error in Poise's built in error handler:{error:#?}");
