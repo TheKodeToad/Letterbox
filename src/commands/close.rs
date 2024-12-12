@@ -9,7 +9,7 @@ use crate::data::threads::delete_thread;
 use crate::data::threads::get_thread_dm_channel;
 
 /// Close a ModMail thread.
-#[poise::command(slash_command, prefix_command, check = "require_staff")]
+#[poise::command(slash_command, prefix_command, guild_only, check = "require_staff")]
 pub async fn close(context: Context<'_>) -> eyre::Result<()> {
 	Ok(close_impl(context, false).await?)
 }

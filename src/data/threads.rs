@@ -5,10 +5,10 @@ pub async fn get_thread_dm_channel(
 	let rows = pg
 		.query(
 			r#"
-			SELECT "dm_channel_id"
-			FROM "threads"
-			WHERE "id" = $1
-		"#,
+				SELECT "dm_channel_id"
+				FROM "threads"
+				WHERE "id" = $1
+			"#,
 			&[&(id as i64)],
 		)
 		.await?;

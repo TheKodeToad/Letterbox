@@ -5,8 +5,9 @@ A simplistic ModMail bot for Discord using modern features like forums.
 - [x] Sending and receiving messages
 - [x] Edit tracking
 - [ ] Edit command
-- [ ] Delete command
+- [x] Delete command
 - [ ] Block command
+- [ ] Mention staff
 - [ ] Contact command
 - [x] Deleting thread from db if it is deleted on Discord
 - [ ] Gracefully handling thread which was gone whilst the bot was offline.

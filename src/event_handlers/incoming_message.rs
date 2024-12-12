@@ -51,6 +51,7 @@ async fn handle_incoming_message_impl(
 	let existing_thread_id = get_thread_id(&data.pg, message.channel_id.get()).await?;
 
 	if let Some(existing_thread_id) = existing_thread_id {
+		println!("{}", existing_thread_id);
 		let existing_thread = serenity::ChannelId::new(existing_thread_id);
 		let fowarded_message = existing_thread
 			.send_message(

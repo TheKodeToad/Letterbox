@@ -25,16 +25,16 @@ pub async fn handle_incoming_edit(
 		return Ok(());
 	};
 
-	let Some(received_message_id) = get_received_message(&data.pg, message.id.get()).await? else {
+	let Some(received_message) = get_received_message(&data.pg, message.id.get()).await? else {
 		return Ok(());
 	};
 
-	let thread = serenity::ChannelId::new(received_message_id.thread_id);
+	let thread = serenity::ChannelId::new(received_message.thread_id);
 
 	thread
 		.edit_message(
 			&context.http,
-			received_message_id.forwarded_message_id,
+			received_message.forwarded_message_id,
 			serenity::EditMessage::new().add_embed(
 				message_as_embed_raw(author, content, &[])
 					.color(serenity::colours::branding::YELLOW),
