@@ -1,8 +1,11 @@
 use poise::serenity_prelude as serenity;
 
 use crate::{
-	common::message_as_embed,
-	data::threads::{link_thread_source_to_target, thread_target_from_source},
+	data::{
+		received_messages::{insert_received_message, ReceivedMessage},
+		threads::{get_thread_id, insert_thread},
+	},
+	formatting::message_as_embed,
 	Data,
 };
 
@@ -45,11 +48,11 @@ async fn handle_incoming_message_impl(
 		return Ok(());
 	}
 
-	let existing_thread_id = thread_target_from_source(&data.pg, message.channel_id.get()).await?;
+	let existing_thread_id = get_thread_id(&data.pg, message.channel_id.get()).await?;
 
 	if let Some(existing_thread_id) = existing_thread_id {
 		let existing_thread = serenity::ChannelId::new(existing_thread_id);
-		existing_thread
+		let fowarded_message = existing_thread
 			.send_message(
 				context,
 				serenity::CreateMessage::new().add_embed(
@@ -57,23 +60,39 @@ async fn handle_incoming_message_impl(
 				),
 			)
 			.await?;
-	} else {
-		let forum_post = data
-			.config
-			.forum_channel_id
-			.create_forum_post(
-				context,
-				serenity::CreateForumPost::new(
-					"Thread from ".to_string() + &message.author.tag(),
-					serenity::CreateMessage::new().add_embed(
-						message_as_embed(message).color(serenity::colours::branding::YELLOW),
-					),
-				),
-			)
-			.await?;
 
-		link_thread_source_to_target(&data.pg, message.channel_id.get(), forum_post.id.get())
-			.await?;
+		insert_received_message(
+			&data.pg,
+			ReceivedMessage {
+				id: message.id.get(),
+				thread_id: existing_thread_id,
+				forwarded_message_id: fowarded_message.id.get(),
+			},
+		)
+		.await?;
+	} else {
+		let forum_post = data.config.forum_channel_id.create_forum_post(
+			&context.http,
+			serenity::CreateForumPost::new(
+				"Thread from ".to_string() + &message.author.tag(),
+				serenity::CreateMessage::new().add_embed(
+					message_as_embed(message).color(serenity::colours::branding::YELLOW),
+				),
+			),
+		)
+		.await?;
+
+		insert_thread(&data.pg, forum_post.id.get(), message.channel_id.get()).await?;
+
+		insert_received_message(
+			&data.pg,
+			ReceivedMessage {
+				id: message.id.get(),
+				thread_id: forum_post.id.get(),
+				forwarded_message_id: forum_post.id.get(), // first message in thread always has thread id
+			},
+		)
+		.await?;
 	}
 
 	message

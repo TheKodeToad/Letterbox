@@ -1,5 +1,7 @@
+mod incoming_edit;
 mod incoming_message;
 
+use incoming_edit::handle_incoming_edit;
 use incoming_message::handle_incoming_message;
 use poise::serenity_prelude as serenity;
 
@@ -10,8 +12,14 @@ pub async fn handle_event(
 	event: &serenity::FullEvent,
 	data: &Data,
 ) -> eyre::Result<()> {
-	if let serenity::FullEvent::Message { new_message } = event {
-		handle_incoming_message(context, new_message, data).await?;
+	match event {
+		serenity::FullEvent::Message { new_message } => {
+			handle_incoming_message(context, new_message, data).await?
+		}
+		serenity::FullEvent::MessageUpdate { event, .. } => {
+			handle_incoming_edit(context, event, data).await?
+		}
+		_ => (),
 	};
 
 	Ok(())

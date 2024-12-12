@@ -2,15 +2,15 @@ use poise::serenity_prelude as serenity;
 use poise::serenity_prelude::CreateEmbedAuthor;
 use poise::serenity_prelude::CreateMessage;
 
-use crate::common::message_as_embed;
-use crate::common::message_as_embed_raw;
-use crate::data::threads::thread_source_from_target;
+use crate::data::threads::get_thread_dm_channel;
+use crate::formatting::message_as_embed;
+use crate::formatting::message_as_embed_raw;
 
 use super::common::require_staff;
 use super::common::Context;
 
 /// Reply to a ModMail thread.
-#[poise::command(slash_command, prefix_command, check = "require_staff")]
+#[poise::command(slash_command, prefix_command, guild_only, check = "require_staff")]
 pub async fn reply(
 	context: Context<'_>,
 	#[rest]
@@ -38,7 +38,7 @@ pub async fn areply(
 
 pub async fn reply_impl(context: Context<'_>, message: &str, anon: bool) -> eyre::Result<()> {
 	let Some(dm_channel_id) =
-		thread_source_from_target(&context.data().pg, context.channel_id().get()).await?
+		get_thread_dm_channel(&context.data().pg, context.channel_id().get()).await?
 	else {
 		context
 			.send(

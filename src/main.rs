@@ -12,11 +12,11 @@ use poise::{
 };
 
 mod commands;
-mod common;
 mod config;
 mod data;
 mod error_handler;
 mod event_handlers;
+mod formatting;
 
 pub struct Data {
 	config: Config,

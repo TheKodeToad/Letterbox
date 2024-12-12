@@ -5,8 +5,8 @@ use poise::serenity_prelude::EditThread;
 
 use super::common::require_staff;
 use super::common::Context;
-use crate::data::threads::delete_thread_by_source;
-use crate::data::threads::thread_source_from_target;
+use crate::data::threads::delete_thread;
+use crate::data::threads::get_thread_dm_channel;
 
 /// Close a ModMail thread.
 #[poise::command(slash_command, prefix_command, check = "require_staff")]
@@ -18,6 +18,7 @@ pub async fn close(context: Context<'_>) -> eyre::Result<()> {
 #[poise::command(
 	slash_command,
 	prefix_command,
+	guild_only,
 	check = "require_staff",
 	aliases("anonclose", "anonymousclose")
 )]
@@ -27,7 +28,7 @@ pub async fn aclose(context: Context<'_>) -> eyre::Result<()> {
 
 async fn close_impl(context: Context<'_>, anon: bool) -> eyre::Result<()> {
 	let Some(dm_channel_id) =
-		thread_source_from_target(&context.data().pg, context.channel_id().get()).await?
+		get_thread_dm_channel(&context.data().pg, context.channel_id().get()).await?
 	else {
 		context
 			.send(
@@ -42,7 +43,7 @@ async fn close_impl(context: Context<'_>, anon: bool) -> eyre::Result<()> {
 
 	context.defer().await?;
 
-	delete_thread_by_source(&context.data().pg, dm_channel_id).await?;
+	delete_thread(&context.data().pg, context.channel_id().get()).await?;
 
 	let close_message = if anon {
 		format!("⛔ Thread closed.")
