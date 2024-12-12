@@ -3,6 +3,7 @@ use std::{collections::HashSet, fs, path::Path};
 
 #[derive(serde::Serialize, serde::Deserialize)]
 pub struct Config {
+	pub server_id: serenity::GuildId,
 	pub forum_channel_id: serenity::ChannelId,
 	pub mention: Option<MentionMode>,
 	#[serde(default = "staff_roles_default" /* [] */)]

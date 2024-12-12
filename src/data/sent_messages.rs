@@ -4,7 +4,7 @@ pub struct SentMessage {
 	pub id: u64,
 	pub thread_id: u64,
 	pub forwarded_message_id: u64,
-	pub anonymous: bool
+	pub anonymous: bool,
 }
 
 pub async fn get_sent_message(

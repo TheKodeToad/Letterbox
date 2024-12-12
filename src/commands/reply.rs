@@ -1,7 +1,7 @@
-use poise::serenity_prelude::SESSION_TIMEOUT;
 use poise::serenity_prelude as serenity;
 use poise::serenity_prelude::CreateEmbedAuthor;
 use poise::serenity_prelude::CreateMessage;
+use poise::serenity_prelude::SESSION_TIMEOUT;
 
 use crate::data::sent_messages::insert_sent_message;
 use crate::data::sent_messages::SentMessage;
@@ -13,7 +13,13 @@ use super::common::require_staff;
 use super::common::Context;
 
 /// Reply to a ModMail thread.
-#[poise::command(slash_command, prefix_command, guild_only, check = "require_staff", aliases("r"))]
+#[poise::command(
+	slash_command,
+	prefix_command,
+	guild_only,
+	check = "require_staff",
+	aliases("r")
+)]
 pub async fn reply(
 	context: Context<'_>,
 	#[rest]
@@ -64,7 +70,17 @@ pub async fn reply_impl(context: Context<'_>, message: &str, anon: bool) -> eyre
 	let mut dm_embed = embed.clone().color(serenity::colours::branding::YELLOW);
 
 	if anon {
-		dm_embed = dm_embed.author(CreateEmbedAuthor::new("Staff Team"));
+		dm_embed = dm_embed.author(
+			CreateEmbedAuthor::new("Staff Team").icon_url(
+				context
+					.data()
+					.config
+					.server_id
+					.to_guild_cached(&context.cache())
+					.and_then(|guild| guild.icon_url())
+					.unwrap_or_default(),
+			),
+		);
 	}
 
 	let forwarded_message = dm_channel
@@ -78,12 +94,16 @@ pub async fn reply_impl(context: Context<'_>, message: &str, anon: bool) -> eyre
 		)
 		.await?;
 
-	insert_sent_message(&context.data().pg, SentMessage {
-		id: source_message.message().await?.id.get(),
-		thread_id: context.channel_id().get(),
-		forwarded_message_id: forwarded_message.id.get(),
-		anonymous: anon,
-	}).await?;
+	insert_sent_message(
+		&context.data().pg,
+		SentMessage {
+			id: source_message.message().await?.id.get(),
+			thread_id: context.channel_id().get(),
+			forwarded_message_id: forwarded_message.id.get(),
+			anonymous: anon,
+		},
+	)
+	.await?;
 
 	if let poise::Context::Prefix(prefix) = context {
 		prefix.msg.delete(&context.http()).await?;
