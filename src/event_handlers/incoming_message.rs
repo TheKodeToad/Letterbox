@@ -71,16 +71,19 @@ async fn handle_incoming_message_impl(
 		)
 		.await?;
 	} else {
-		let forum_post = data.config.forum_channel_id.create_forum_post(
-			&context.http,
-			serenity::CreateForumPost::new(
-				"Thread from ".to_string() + &message.author.tag(),
-				serenity::CreateMessage::new().add_embed(
-					message_as_embed(message).color(serenity::colours::branding::YELLOW),
+		let forum_post = data
+			.config
+			.forum_channel_id
+			.create_forum_post(
+				&context.http,
+				serenity::CreateForumPost::new(
+					"Thread from ".to_string() + &message.author.tag(),
+					serenity::CreateMessage::new().add_embed(
+						message_as_embed(message).color(serenity::colours::branding::YELLOW),
+					),
 				),
-			),
-		)
-		.await?;
+			)
+			.await?;
 
 		insert_thread(&data.pg, forum_post.id.get(), message.channel_id.get()).await?;
 
