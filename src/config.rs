@@ -1,4 +1,4 @@
-use poise::serenity_prelude::{self as serenity, RoleId};
+use poise::serenity_prelude as serenity;
 use std::{collections::HashSet, fs, path::Path};
 
 #[derive(serde::Serialize, serde::Deserialize)]
@@ -28,7 +28,7 @@ impl Config {
 		Ok(toml::from_str(&data)?)
 	}
 
-	pub fn is_staff(&self, roles: &[RoleId]) -> bool {
+	pub fn is_staff(&self, roles: &[serenity::RoleId]) -> bool {
 		roles.iter().any(|role| self.staff_roles.contains(role))
 	}
 }

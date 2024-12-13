@@ -1,5 +1,5 @@
 use eyre::OptionExt;
-use poise::serenity_prelude::{self as serenity, CreateMessage};
+use poise::serenity_prelude as serenity;
 
 use crate::{
 	data::{sent_messages::get_sent_message, threads::get_thread_dm_channel},

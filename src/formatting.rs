@@ -1,4 +1,4 @@
-use poise::serenity_prelude::{self as serenity, CreateEmbedAuthor, User};
+use poise::serenity_prelude as serenity;
 
 use crate::config::Config;
 

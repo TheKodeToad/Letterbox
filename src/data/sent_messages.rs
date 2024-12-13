@@ -1,6 +1,4 @@
-use std::sync::atomic;
 
-use super::received_messages::ReceivedMessage;
 
 pub struct SentMessage {
 	pub id: u64,

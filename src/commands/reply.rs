@@ -1,6 +1,4 @@
 use poise::serenity_prelude as serenity;
-use poise::serenity_prelude::CreateEmbedAuthor;
-use poise::serenity_prelude::CreateMessage;
 
 use crate::data::sent_messages::insert_sent_message;
 use crate::data::sent_messages::SentMessage;
@@ -25,7 +23,7 @@ pub async fn reply(
 	#[description = "The message to send."]
 	message: String,
 ) -> eyre::Result<()> {
-	Ok(reply_impl(context, &message, false).await?)
+	reply_impl(context, &message, false).await
 }
 
 /// Reply to a ModMail thread anonymously.
@@ -42,7 +40,7 @@ pub async fn areply(
 	#[description = "The message to send."]
 	message: String,
 ) -> eyre::Result<()> {
-	Ok(reply_impl(context, &message, true).await?)
+	reply_impl(context, &message, true).await
 }
 
 pub async fn reply_impl(context: Context<'_>, message: &str, anonymous: bool) -> eyre::Result<()> {
@@ -64,8 +62,8 @@ pub async fn reply_impl(context: Context<'_>, message: &str, anonymous: bool) ->
 	let forwarded_message = dm_channel
 		.send_message(
 			&context,
-			CreateMessage::new().add_embed(make_embed(
-				&context.serenity_context(),
+			serenity::CreateMessage::new().add_embed(make_embed(
+				context.serenity_context(),
 				&context.data().config,
 				&EmbedOptions {
 					user: context.author(),
@@ -80,7 +78,7 @@ pub async fn reply_impl(context: Context<'_>, message: &str, anonymous: bool) ->
 
 	let source_message = context
 		.send(poise::CreateReply::default().embed(make_embed(
-			&context.serenity_context(),
+			context.serenity_context(),
 			&context.data().config,
 			&EmbedOptions {
 				user: context.author(),

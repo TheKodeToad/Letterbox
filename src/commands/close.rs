@@ -14,7 +14,7 @@ use crate::data::threads::get_thread_dm_channel;
 	aliases("c")
 )]
 pub async fn close(context: Context<'_>) -> eyre::Result<()> {
-	Ok(close_impl(context, false).await?)
+	close_impl(context, false).await
 }
 
 /// Close a ModMail thread anonymously.
@@ -26,7 +26,7 @@ pub async fn close(context: Context<'_>) -> eyre::Result<()> {
 	aliases("ac", "anonclose", "anonymousclose")
 )]
 pub async fn aclose(context: Context<'_>) -> eyre::Result<()> {
-	Ok(close_impl(context, true).await?)
+	close_impl(context, true).await
 }
 
 async fn close_impl(context: Context<'_>, anonymous: bool) -> eyre::Result<()> {
@@ -49,7 +49,7 @@ async fn close_impl(context: Context<'_>, anonymous: bool) -> eyre::Result<()> {
 	delete_thread(&context.data().pg, context.channel_id().get()).await?;
 
 	let close_message = if anonymous {
-		format!("⛔ Thread closed.")
+		"⛔ Thread closed.".to_string()
 	} else {
 		format!("⛔ Thread closed by <@{}>.", context.author().id)
 	};

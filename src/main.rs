@@ -1,4 +1,3 @@
-use core::error;
 use std::path::Path;
 
 use commands::commands;
@@ -6,10 +5,7 @@ use config::Config;
 use data::migrations;
 use error_handler::handle_error;
 use event_handlers::handle_event;
-use poise::{
-	serenity_prelude::{self as serenity, ActivityData},
-	PrefixFrameworkOptions,
-};
+use poise::serenity_prelude as serenity;
 
 mod commands;
 mod config;
@@ -34,7 +30,7 @@ async fn main() -> eyre::Result<()> {
 	let options = poise::FrameworkOptions {
 		commands: commands(),
 		allowed_mentions: Some(serenity::CreateAllowedMentions::new()),
-		prefix_options: PrefixFrameworkOptions {
+		prefix_options: poise::PrefixFrameworkOptions {
 			dynamic_prefix: Some(|context| {
 				Box::pin(async move { Ok(Some(context.data.config.prefix.to_owned())) })
 			}),
@@ -74,7 +70,7 @@ async fn setup(
 	let config = Config::new_from_file(Path::new("config.toml"))?;
 	context
 		.shard
-		.set_activity(Some(ActivityData::custom(&config.status)));
+		.set_activity(Some(serenity::ActivityData::custom(&config.status)));
 
 	let (mut pg_client, connection) =
 		tokio_postgres::connect(&postgres_config, tokio_postgres::NoTls).await?;
