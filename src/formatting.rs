@@ -2,24 +2,28 @@ use poise::serenity_prelude::{self as serenity, CreateEmbedAuthor, User};
 
 use crate::config::Config;
 
+pub struct EmbedOptions<'a> {
+	pub user: &'a serenity::User,
+	pub content: &'a str,
+	pub outgoing: bool,
+	pub anonymous: bool,
+	pub details: bool,
+}
+
 pub fn make_embed(
 	context: &serenity::Context,
 	config: &Config,
-	user: &serenity::User,
-	content: &str,
-	outgoing: bool,
-	anonymous: bool,
-	details: bool,
+	options: &EmbedOptions,
 ) -> serenity::CreateEmbed {
-	let mut result = serenity::CreateEmbed::new().description(content);
+	let mut result = serenity::CreateEmbed::new().description(options.content);
 
-	if outgoing {
+	if options.outgoing {
 		result = result.color(serenity::colours::branding::GREEN);
 	} else {
 		result = result.color(serenity::colours::branding::YELLOW);
 	}
 
-	if anonymous {
+	if options.anonymous {
 		result = result.author(
 			serenity::CreateEmbedAuthor::new("Staff Team").icon_url(
 				config
@@ -31,18 +35,20 @@ pub fn make_embed(
 		);
 	} else {
 		result = result.author(
-			serenity::CreateEmbedAuthor::new(user.display_name()).icon_url(
-				user.avatar_url()
-					.unwrap_or_else(|| user.default_avatar_url()),
+			serenity::CreateEmbedAuthor::new(options.user.display_name()).icon_url(
+				options
+					.user
+					.avatar_url()
+					.unwrap_or_else(|| options.user.default_avatar_url()),
 			),
 		);
 	}
 
-	if details {
+	if options.details {
 		result = result.footer(serenity::CreateEmbedFooter::new(format!(
 			"Username: {} ({})",
-			user.tag(),
-			user.id
+			options.user.tag(),
+			options.user.id,
 		)));
 	}
 

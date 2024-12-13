@@ -1,6 +1,10 @@
 use poise::serenity_prelude as serenity;
 
-use crate::{data::received_messages::get_received_message, formatting::make_embed, Data};
+use crate::{
+	data::received_messages::get_received_message,
+	formatting::{make_embed, EmbedOptions},
+	Data,
+};
 
 pub async fn handle_incoming_edit(
 	context: &serenity::Context,
@@ -36,11 +40,13 @@ pub async fn handle_incoming_edit(
 			serenity::EditMessage::new().add_embed(make_embed(
 				context,
 				&data.config,
-				author,
-				content,
-				false,
-				false,
-				true,
+				&EmbedOptions {
+					user: author,
+					content,
+					outgoing: false,
+					anonymous: false,
+					details: true,
+				},
 			)),
 		)
 		.await?;

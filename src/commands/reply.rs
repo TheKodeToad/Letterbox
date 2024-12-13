@@ -6,6 +6,7 @@ use crate::data::sent_messages::insert_sent_message;
 use crate::data::sent_messages::SentMessage;
 use crate::data::threads::get_thread_dm_channel;
 use crate::formatting::make_embed;
+use crate::formatting::EmbedOptions;
 
 use super::common::require_staff;
 use super::common::Context;
@@ -66,11 +67,13 @@ pub async fn reply_impl(context: Context<'_>, message: &str, anonymous: bool) ->
 			CreateMessage::new().add_embed(make_embed(
 				&context.serenity_context(),
 				&context.data().config,
-				context.author(),
-				message,
-				false,
-				anonymous,
-				false,
+				&EmbedOptions {
+					user: context.author(),
+					content: message,
+					outgoing: false,
+					anonymous,
+					details: false,
+				},
 			)),
 		)
 		.await?;
@@ -79,11 +82,13 @@ pub async fn reply_impl(context: Context<'_>, message: &str, anonymous: bool) ->
 		.send(poise::CreateReply::default().embed(make_embed(
 			&context.serenity_context(),
 			&context.data().config,
-			context.author(),
-			message,
-			true,
-			anonymous,
-			true,
+			&EmbedOptions {
+				user: context.author(),
+				content: message,
+				outgoing: true,
+				anonymous,
+				details: true,
+			},
 		)))
 		.await?;
 

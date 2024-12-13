@@ -1,11 +1,11 @@
-use poise::serenity_prelude as serenity;
+use poise::serenity_prelude::{self as serenity, Embed};
 
 use crate::{
 	data::{
 		received_messages::{insert_received_message, ReceivedMessage},
 		threads::{get_thread_id, insert_thread},
 	},
-	formatting::make_embed,
+	formatting::{make_embed, EmbedOptions},
 	Data,
 };
 
@@ -58,11 +58,13 @@ async fn handle_incoming_message_impl(
 				serenity::CreateMessage::new().add_embed(make_embed(
 					context,
 					&data.config,
-					&message.author,
-					&message.content,
-					false,
-					false,
-					true,
+					&EmbedOptions {
+						user: &message.author,
+						content: &message.content,
+						outgoing: false,
+						anonymous: false,
+						details: true,
+					},
 				)),
 			)
 			.await?;
@@ -87,11 +89,13 @@ async fn handle_incoming_message_impl(
 					serenity::CreateMessage::new().add_embed(make_embed(
 						context,
 						&data.config,
-						&message.author,
-						&message.content,
-						false,
-						false,
-						true,
+						&EmbedOptions {
+							user: &message.author,
+							content: &message.content,
+							outgoing: false,
+							anonymous: false,
+							details: true,
+						},
 					)),
 				),
 			)
