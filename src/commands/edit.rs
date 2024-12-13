@@ -2,7 +2,7 @@ use eyre::OptionExt;
 use poise::serenity_prelude as serenity;
 
 use crate::{
-	data::{sent_messages::get_sent_message, threads::get_thread_dm_channel},
+	data::{sent_messages::{self, get_sent_message}, threads::get_thread_dm_channel},
 	formatting::{make_embed, EmbedOptions},
 };
 
@@ -40,9 +40,10 @@ pub async fn edit(
 		return Ok(());
 	};
 
-	let user = serenity::UserId::new(sent_message.author_id)
-		.to_user(context.http())
-		.await?;
+	if sent_message.author_id != context.author().id.get() {
+		context.say("❌ This reply was not authored by you.").await?;
+		return Ok(());
+	}
 
 	let dm_channel_id = get_thread_dm_channel(&context.data.pg, sent_message.thread_id)
 		.await?
@@ -59,7 +60,7 @@ pub async fn edit(
 				context.serenity_context,
 				&context.data().config,
 				&EmbedOptions {
-					user: &user,
+					user: context.author(),
 					content: &content,
 					outgoing: false,
 					anonymous: sent_message.anonymous,
@@ -76,7 +77,7 @@ pub async fn edit(
 				context.serenity_context,
 				&context.data().config,
 				&EmbedOptions {
-					user: &user,
+					user: context.author(),
 					content: &content,
 					outgoing: true,
 					anonymous: sent_message.anonymous,
