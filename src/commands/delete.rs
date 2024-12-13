@@ -10,6 +10,7 @@ use crate::Data;
 
 use super::common::require_staff;
 use super::common::Context;
+use super::common::PrefixContext;
 
 /// Delete a ModMail reply.
 #[poise::command(
@@ -18,7 +19,7 @@ use super::common::Context;
 	check = "require_staff",
 	aliases("del", "d")
 )]
-pub async fn delete(context: poise::PrefixContext<'_, Data, eyre::Report>) -> eyre::Result<()> {
+pub async fn delete(context: PrefixContext<'_>) -> eyre::Result<()> {
 	let Some(serenity::MessageReference {
 		message_id: Some(message_id),
 		..

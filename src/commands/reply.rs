@@ -98,6 +98,7 @@ pub async fn reply_impl(context: Context<'_>, message: &str, anonymous: bool) ->
 			id: source_message.message().await?.id.get(),
 			thread_id: context.channel_id().get(),
 			forwarded_message_id: forwarded_message.id.get(),
+			author_id: context.author().id.get(),
 			anonymous,
 		},
 	)

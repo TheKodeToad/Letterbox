@@ -4,7 +4,7 @@ A simplistic ModMail bot for Discord using modern features like forums.
 ## TODO
 - [x] Sending and receiving messages
 - [x] Edit tracking
-- [ ] Edit command
+- [x] Edit command
 - [x] Delete command
 - [ ] Block command
 - [ ] Mention staff

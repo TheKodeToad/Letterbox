@@ -85,7 +85,7 @@ async fn handle_incoming_message_impl(
 			.create_forum_post(
 				&context.http,
 				serenity::CreateForumPost::new(
-					"Thread from ".to_string() + &message.author.tag(),
+					format!("Thread from {}", &message.author.tag()),
 					serenity::CreateMessage::new().add_embed(make_embed(
 						context,
 						&data.config,

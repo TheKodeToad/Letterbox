@@ -1,9 +1,12 @@
+use std::sync::atomic;
+
 use super::received_messages::ReceivedMessage;
 
 pub struct SentMessage {
 	pub id: u64,
 	pub thread_id: u64,
 	pub forwarded_message_id: u64,
+	pub author_id: u64,
 	pub anonymous: bool,
 }
 
@@ -14,7 +17,7 @@ pub async fn get_sent_message(
 	let rows = pg
 		.query(
 			r#"
-				SELECT "id", "thread_id", "forwarded_message_id", "anonymous"
+				SELECT "id", "thread_id", "forwarded_message_id", "author_id", "anonymous"
 				FROM "sent_messages"
 				WHERE "id" = $1
 			"#,
@@ -32,11 +35,13 @@ pub async fn get_sent_message(
 		let id: i64 = row.get("id");
 		let thread_id: i64 = row.get("thread_id");
 		let fowarded_message_id: i64 = row.get("forwarded_message_id");
+		let author_id: i64 = row.get("author_id");
 		let anonymous: bool = row.get("anonymous");
 
 		Ok(Some(SentMessage {
 			id: id as u64,
 			thread_id: thread_id as u64,
+			author_id: author_id as u64,
 			forwarded_message_id: fowarded_message_id as u64,
 			anonymous,
 		}))
@@ -49,13 +54,14 @@ pub async fn insert_sent_message(
 ) -> eyre::Result<()> {
 	pg.execute(
 		r#"
-			INSERT INTO "sent_messages" ("id", "thread_id", "forwarded_message_id", "anonymous")
-			VALUES ($1, $2, $3, $4)
+			INSERT INTO "sent_messages" ("id", "thread_id", "forwarded_message_id", "author_id", "anonymous")
+			VALUES ($1, $2, $3, $4, $5)
 		"#,
 		&[
 			&(message.id as i64),
 			&(message.thread_id as i64),
 			&(message.forwarded_message_id as i64),
+			&(message.author_id as i64),
 			&message.anonymous,
 		],
 	)
