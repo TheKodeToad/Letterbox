@@ -2,7 +2,10 @@ use eyre::OptionExt;
 use poise::serenity_prelude as serenity;
 
 use crate::{
-	data::{sent_messages::{self, get_sent_message}, threads::get_thread_dm_channel},
+	data::{
+		sent_messages::{self, get_sent_message},
+		threads::get_thread_dm_channel,
+	},
 	formatting::{make_embed, EmbedOptions},
 };
 
@@ -41,7 +44,9 @@ pub async fn edit(
 	};
 
 	if sent_message.author_id != context.author().id.get() {
-		context.say("❌ This reply was not authored by you.").await?;
+		context
+			.say("❌ This reply was not authored by you.")
+			.await?;
 		return Ok(());
 	}
 
