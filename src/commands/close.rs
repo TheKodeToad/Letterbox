@@ -23,7 +23,7 @@ pub async fn close(context: Context<'_>) -> eyre::Result<()> {
 	prefix_command,
 	guild_only,
 	check = "require_staff",
-	aliases("ac", "anonclose", "anonymousclose")
+	aliases("ac", "anonclose")
 )]
 pub async fn aclose(context: Context<'_>) -> eyre::Result<()> {
 	close_impl(context, true).await
