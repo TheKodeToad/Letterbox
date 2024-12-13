@@ -2,7 +2,7 @@ use poise::serenity_prelude as serenity;
 
 use crate::{
 	data::received_messages::get_received_message,
-	formatting::{make_embed, EmbedOptions},
+	formatting::{make_message_embed, EmbedOptions},
 	Data,
 };
 
@@ -39,7 +39,7 @@ pub async fn handle_incoming_edit(
 		.await?;
 
 	let thread = serenity::ChannelId::new(received_message.thread_id);
-	let new_embed = make_embed(
+	let new_embed = make_message_embed(
 		context,
 		&data.config,
 		&EmbedOptions {

@@ -5,7 +5,7 @@ use crate::{
 		received_messages::{insert_received_message, ReceivedMessage},
 		threads::{get_thread_id, insert_thread},
 	},
-	formatting::{make_embed, EmbedOptions},
+	formatting::{make_message_embed, EmbedOptions},
 	Data,
 };
 
@@ -55,7 +55,7 @@ async fn handle_incoming_message_impl(
 		let fowarded_message = existing_thread
 			.send_message(
 				context,
-				serenity::CreateMessage::new().add_embed(make_embed(
+				serenity::CreateMessage::new().add_embed(make_message_embed(
 					context,
 					&data.config,
 					&EmbedOptions {
@@ -86,7 +86,7 @@ async fn handle_incoming_message_impl(
 				&context.http,
 				serenity::CreateForumPost::new(
 					format!("Thread from {}", &message.author.tag()),
-					serenity::CreateMessage::new().add_embed(make_embed(
+					serenity::CreateMessage::new().add_embed(make_message_embed(
 						context,
 						&data.config,
 						&EmbedOptions {

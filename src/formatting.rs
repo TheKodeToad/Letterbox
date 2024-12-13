@@ -10,7 +10,7 @@ pub struct EmbedOptions<'a> {
 	pub details: bool,
 }
 
-pub fn make_embed(
+pub fn make_message_embed(
 	context: &serenity::Context,
 	config: &Config,
 	options: &EmbedOptions,
@@ -25,7 +25,7 @@ pub fn make_embed(
 
 	if options.anonymous {
 		result = result.author(
-			serenity::CreateEmbedAuthor::new("Staff Team").icon_url(
+			serenity::CreateEmbedAuthor::new(&config.anonymous_display_name).icon_url(
 				config
 					.server_id
 					.to_guild_cached(&context.cache)

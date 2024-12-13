@@ -6,7 +6,7 @@ use crate::{
 		sent_messages::{self, get_sent_message},
 		threads::get_thread_dm_channel,
 	},
-	formatting::{make_embed, EmbedOptions},
+	formatting::{make_message_embed, EmbedOptions},
 };
 
 use super::common::require_staff;
@@ -61,7 +61,7 @@ pub async fn edit(
 		.edit_message(
 			&context.http(),
 			sent_message.forwarded_message_id,
-			serenity::EditMessage::new().embed(make_embed(
+			serenity::EditMessage::new().embed(make_message_embed(
 				context.serenity_context,
 				&context.data().config,
 				&EmbedOptions {
@@ -78,7 +78,7 @@ pub async fn edit(
 		.edit_message(
 			&context.http(),
 			message_id,
-			serenity::EditMessage::new().embed(make_embed(
+			serenity::EditMessage::new().embed(make_message_embed(
 				context.serenity_context,
 				&context.data().config,
 				&EmbedOptions {

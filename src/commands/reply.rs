@@ -3,7 +3,7 @@ use poise::serenity_prelude as serenity;
 use crate::data::sent_messages::insert_sent_message;
 use crate::data::sent_messages::SentMessage;
 use crate::data::threads::get_thread_dm_channel;
-use crate::formatting::make_embed;
+use crate::formatting::make_message_embed;
 use crate::formatting::EmbedOptions;
 
 use super::common::require_staff;
@@ -62,7 +62,7 @@ pub async fn reply_impl(context: Context<'_>, message: &str, anonymous: bool) ->
 	let forwarded_message = dm_channel
 		.send_message(
 			&context,
-			serenity::CreateMessage::new().add_embed(make_embed(
+			serenity::CreateMessage::new().add_embed(make_message_embed(
 				context.serenity_context(),
 				&context.data().config,
 				&EmbedOptions {
@@ -77,7 +77,7 @@ pub async fn reply_impl(context: Context<'_>, message: &str, anonymous: bool) ->
 		.await?;
 
 	let source_message = context
-		.send(poise::CreateReply::default().embed(make_embed(
+		.send(poise::CreateReply::default().embed(make_message_embed(
 			context.serenity_context(),
 			&context.data().config,
 			&EmbedOptions {

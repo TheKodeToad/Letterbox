@@ -5,13 +5,15 @@ use std::{collections::HashSet, fs, path::Path};
 pub struct Config {
 	pub server_id: serenity::GuildId,
 	pub forum_channel_id: serenity::ChannelId,
-	pub mention: Option<MentionMode>,
 	#[serde(default = "staff_roles_default" /* [] */)]
 	pub staff_roles: HashSet<serenity::RoleId>,
 	#[serde(default = "prefix_default" /* = */)]
 	pub prefix: String,
 	#[serde(default = "status_default" /* Message me to contact mods! */)]
 	pub status: String,
+	#[serde(default = "anonymous_display_name") /* Staff Member */]
+	pub anonymous_display_name: String,
+	pub mention: Option<MentionMode>,
 }
 
 #[derive(serde::Serialize, serde::Deserialize)]
@@ -45,4 +47,8 @@ fn prefix_default() -> String {
 
 fn status_default() -> String {
 	"Message me to contact mods!".to_string()
+}
+
+fn anonymous_display_name() -> String {
+	"Staff Member".to_string()
 }
