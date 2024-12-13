@@ -1,5 +1,3 @@
-
-
 pub struct SentMessage {
 	pub id: u64,
 	pub thread_id: u64,

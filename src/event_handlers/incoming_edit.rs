@@ -31,23 +31,62 @@ pub async fn handle_incoming_edit(
 		return Ok(());
 	};
 
-	let thread = serenity::ChannelId::new(received_message.thread_id);
+	let reaction = serenity::ReactionType::Unicode("⌛".to_string());
 
-	thread
+	message
+		.channel_id
+		.create_reaction(&context.http, message.id, reaction.clone())
+		.await?;
+
+	let thread = serenity::ChannelId::new(received_message.thread_id);
+	let new_embed = make_embed(
+		context,
+		&data.config,
+		&EmbedOptions {
+			user: author,
+			content,
+			outgoing: false,
+			anonymous: false,
+			details: true,
+		},
+	);
+
+	let edit_result = thread
 		.edit_message(
 			&context.http,
 			received_message.forwarded_message_id,
-			serenity::EditMessage::new().add_embed(make_embed(
-				context,
-				&data.config,
-				&EmbedOptions {
-					user: author,
-					content,
-					outgoing: false,
-					anonymous: false,
-					details: true,
-				},
-			)),
+			serenity::EditMessage::new().add_embed(new_embed),
+		)
+		.await;
+
+	if let Err(_) = edit_result {
+		message
+			.channel_id
+			.send_message(
+				&context.http,
+				serenity::CreateMessage::new()
+					.content("❌ An error occured - your edit did not go through.")
+					.reference_message(
+						serenity::MessageReference::new(
+							serenity::MessageReferenceKind::Default,
+							message.channel_id,
+						)
+						.message_id(message.id),
+					)
+					.allowed_mentions(serenity::CreateAllowedMentions::new()),
+			)
+			.await?;
+	}
+
+	let bot_user_id = context.cache.current_user().id;
+
+	message
+		.channel_id
+		.delete_reaction(
+			&context.http,
+			message.id,
+			Some(bot_user_id),
+			reaction.clone(),
 		)
 		.await?;
 
