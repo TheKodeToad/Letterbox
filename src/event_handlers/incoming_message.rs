@@ -5,7 +5,7 @@ use crate::{
 		received_messages::{insert_received_message, ReceivedMessage},
 		threads::{get_thread_id, insert_thread},
 	},
-	formatting::message_as_embed,
+	formatting::make_embed,
 	Data,
 };
 
@@ -51,14 +51,19 @@ async fn handle_incoming_message_impl(
 	let existing_thread_id = get_thread_id(&data.pg, message.channel_id.get()).await?;
 
 	if let Some(existing_thread_id) = existing_thread_id {
-		println!("{}", existing_thread_id);
 		let existing_thread = serenity::ChannelId::new(existing_thread_id);
 		let fowarded_message = existing_thread
 			.send_message(
 				context,
-				serenity::CreateMessage::new().add_embed(
-					message_as_embed(message).color(serenity::colours::branding::YELLOW),
-				),
+				serenity::CreateMessage::new().add_embed(make_embed(
+					context,
+					&data.config,
+					&message.author,
+					&message.content,
+					false,
+					false,
+					true,
+				)),
 			)
 			.await?;
 
@@ -79,9 +84,15 @@ async fn handle_incoming_message_impl(
 				&context.http,
 				serenity::CreateForumPost::new(
 					"Thread from ".to_string() + &message.author.tag(),
-					serenity::CreateMessage::new().add_embed(
-						message_as_embed(message).color(serenity::colours::branding::YELLOW),
-					),
+					serenity::CreateMessage::new().add_embed(make_embed(
+						context,
+						&data.config,
+						&message.author,
+						&message.content,
+						false,
+						false,
+						true,
+					)),
 				),
 			)
 			.await?;

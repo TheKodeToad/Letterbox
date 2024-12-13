@@ -1,27 +1,50 @@
-use poise::serenity_prelude as serenity;
+use poise::serenity_prelude::{self as serenity, CreateEmbedAuthor, User};
 
-pub fn message_as_embed(message: &serenity::Message) -> serenity::CreateEmbed {
-	message_as_embed_raw(&message.author, &message.content, &message.attachments)
-}
+use crate::config::Config;
 
-pub fn message_as_embed_raw(
-	author: &serenity::User,
+pub fn make_embed(
+	context: &serenity::Context,
+	config: &Config,
+	user: &serenity::User,
 	content: &str,
-	attachments: &[serenity::Attachment],
+	outgoing: bool,
+	anonymous: bool,
+	details: bool,
 ) -> serenity::CreateEmbed {
-	serenity::CreateEmbed::new()
-		.author(
-			serenity::CreateEmbedAuthor::new(format!(
-				"{} ({})",
-				author.display_name(),
-				author.tag()
-			))
-			.icon_url(
-				author
-					.avatar_url()
-					.unwrap_or_else(|| author.default_avatar_url()),
-			)
-			.url(format!("https://discord.com/users/{}", author.id)),
-		)
-		.description(content)
+	let mut result = serenity::CreateEmbed::new().description(content);
+
+	if outgoing {
+		result = result.color(serenity::colours::branding::GREEN);
+	} else {
+		result = result.color(serenity::colours::branding::YELLOW);
+	}
+
+	if anonymous {
+		result = result.author(
+			serenity::CreateEmbedAuthor::new("Staff Team").icon_url(
+				config
+					.server_id
+					.to_guild_cached(&context.cache)
+					.and_then(|guild| guild.icon_url())
+					.unwrap_or_default(),
+			),
+		);
+	} else {
+		result = result.author(
+			serenity::CreateEmbedAuthor::new(user.display_name()).icon_url(
+				user.avatar_url()
+					.unwrap_or_else(|| user.default_avatar_url()),
+			),
+		);
+	}
+
+	if details {
+		result = result.footer(serenity::CreateEmbedFooter::new(format!(
+			"Username: {} ({})",
+			user.tag(),
+			user.id
+		)));
+	}
+
+	result
 }

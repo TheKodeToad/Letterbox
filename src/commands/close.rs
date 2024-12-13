@@ -1,7 +1,4 @@
 use poise::serenity_prelude as serenity;
-use poise::serenity_prelude::CreateAllowedMentions;
-use poise::serenity_prelude::CreateMessage;
-use poise::serenity_prelude::EditThread;
 
 use super::common::require_staff;
 use super::common::Context;
@@ -26,7 +23,7 @@ pub async fn aclose(context: Context<'_>) -> eyre::Result<()> {
 	Ok(close_impl(context, true).await?)
 }
 
-async fn close_impl(context: Context<'_>, anon: bool) -> eyre::Result<()> {
+async fn close_impl(context: Context<'_>, anonymous: bool) -> eyre::Result<()> {
 	let Some(dm_channel_id) =
 		get_thread_dm_channel(&context.data().pg, context.channel_id().get()).await?
 	else {
@@ -45,7 +42,7 @@ async fn close_impl(context: Context<'_>, anon: bool) -> eyre::Result<()> {
 
 	delete_thread(&context.data().pg, context.channel_id().get()).await?;
 
-	let close_message = if anon {
+	let close_message = if anonymous {
 		format!("⛔ Thread closed.")
 	} else {
 		format!("⛔ Thread closed by <@{}>.", context.author().id)
@@ -54,9 +51,9 @@ async fn close_impl(context: Context<'_>, anon: bool) -> eyre::Result<()> {
 	dm_channel
 		.send_message(
 			&context.http(),
-			CreateMessage::new()
+			serenity::CreateMessage::new()
 				.content(&close_message)
-				.allowed_mentions(CreateAllowedMentions::new()),
+				.allowed_mentions(serenity::CreateAllowedMentions::new()),
 		)
 		.await?;
 	context.say(&close_message).await?;
@@ -69,7 +66,7 @@ async fn close_impl(context: Context<'_>, anon: bool) -> eyre::Result<()> {
 		.channel_id()
 		.edit_thread(
 			&context.http(),
-			EditThread::new().locked(true).archived(true),
+			serenity::EditThread::new().locked(true).archived(true),
 		)
 		.await?;
 

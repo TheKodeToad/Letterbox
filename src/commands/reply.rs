@@ -1,13 +1,11 @@
 use poise::serenity_prelude as serenity;
 use poise::serenity_prelude::CreateEmbedAuthor;
 use poise::serenity_prelude::CreateMessage;
-use poise::serenity_prelude::SESSION_TIMEOUT;
 
 use crate::data::sent_messages::insert_sent_message;
 use crate::data::sent_messages::SentMessage;
 use crate::data::threads::get_thread_dm_channel;
-use crate::formatting::message_as_embed;
-use crate::formatting::message_as_embed_raw;
+use crate::formatting::make_embed;
 
 use super::common::require_staff;
 use super::common::Context;
@@ -46,7 +44,7 @@ pub async fn areply(
 	Ok(reply_impl(context, &message, true).await?)
 }
 
-pub async fn reply_impl(context: Context<'_>, message: &str, anon: bool) -> eyre::Result<()> {
+pub async fn reply_impl(context: Context<'_>, message: &str, anonymous: bool) -> eyre::Result<()> {
 	let Some(dm_channel_id) =
 		get_thread_dm_channel(&context.data().pg, context.channel_id().get()).await?
 	else {
@@ -59,39 +57,34 @@ pub async fn reply_impl(context: Context<'_>, message: &str, anon: bool) -> eyre
 			.await?;
 		return Ok(());
 	};
+
 	let dm_channel = serenity::ChannelId::new(dm_channel_id);
 
-	let embed = if let poise::Context::Prefix(prefix) = context {
-		message_as_embed(prefix.msg).description(message)
-	} else {
-		message_as_embed_raw(context.author(), message, &[])
-	};
-
-	let mut dm_embed = embed.clone().color(serenity::colours::branding::YELLOW);
-
-	if anon {
-		dm_embed = dm_embed.author(
-			CreateEmbedAuthor::new("Staff Team").icon_url(
-				context
-					.data()
-					.config
-					.server_id
-					.to_guild_cached(&context.cache())
-					.and_then(|guild| guild.icon_url())
-					.unwrap_or_default(),
-			),
-		);
-	}
-
 	let forwarded_message = dm_channel
-		.send_message(&context, CreateMessage::new().add_embed(dm_embed))
+		.send_message(
+			&context,
+			CreateMessage::new().add_embed(make_embed(
+				&context.serenity_context(),
+				&context.data().config,
+				context.author(),
+				message,
+				false,
+				anonymous,
+				false,
+			)),
+		)
 		.await?;
 
 	let source_message = context
-		.send(
-			poise::CreateReply::default()
-				.embed(embed.clone().color(serenity::colours::branding::GREEN)),
-		)
+		.send(poise::CreateReply::default().embed(make_embed(
+			&context.serenity_context(),
+			&context.data().config,
+			context.author(),
+			message,
+			true,
+			anonymous,
+			true,
+		)))
 		.await?;
 
 	insert_sent_message(
@@ -100,7 +93,7 @@ pub async fn reply_impl(context: Context<'_>, message: &str, anon: bool) -> eyre
 			id: source_message.message().await?.id.get(),
 			thread_id: context.channel_id().get(),
 			forwarded_message_id: forwarded_message.id.get(),
-			anonymous: anon,
+			anonymous,
 		},
 	)
 	.await?;
