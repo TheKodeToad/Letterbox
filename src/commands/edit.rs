@@ -4,7 +4,7 @@ use poise::serenity_prelude as serenity;
 use crate::{
 	data::{
 		sent_messages::{self, get_sent_message},
-		threads::get_thread_dm_channel,
+		threads::get_thread,
 	},
 	formatting::{make_message_embed, EmbedOptions},
 };
@@ -50,9 +50,10 @@ pub async fn edit(
 		return Ok(());
 	}
 
-	let dm_channel_id = get_thread_dm_channel(&context.data.pg, sent_message.thread_id)
+	let dm_channel_id = get_thread(&context.data.pg, sent_message.thread_id)
 		.await?
-		.ok_or_eyre("Thread went missing!")?;
+		.ok_or_eyre("Thread went missing!")?
+		.dm_channel_id;
 	let dm_channel = serenity::ChannelId::new(dm_channel_id);
 
 	let thread = serenity::ChannelId::new(sent_message.thread_id);

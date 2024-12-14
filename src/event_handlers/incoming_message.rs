@@ -3,9 +3,9 @@ use poise::serenity_prelude as serenity;
 use crate::{
 	data::{
 		received_messages::{insert_received_message, ReceivedMessage},
-		threads::{get_thread_id, insert_thread},
+		threads::{get_thread, get_thread_by_dm_channel, insert_thread, Thread},
 	},
-	formatting::{make_message_embed, EmbedOptions},
+	formatting::{make_info_message, make_message_embed, EmbedOptions},
 	Data,
 };
 
@@ -48,37 +48,13 @@ async fn handle_incoming_message_impl(
 		return Ok(());
 	}
 
-	let existing_thread_id = get_thread_id(&data.pg, message.channel_id.get()).await?;
+	let existing_thread = get_thread_by_dm_channel(&data.pg, message.channel_id.get()).await?;
 
-	if let Some(existing_thread_id) = existing_thread_id {
-		let existing_thread = serenity::ChannelId::new(existing_thread_id);
-		let fowarded_message = existing_thread
-			.send_message(
-				context,
-				serenity::CreateMessage::new().add_embed(make_message_embed(
-					context,
-					&data.config,
-					&EmbedOptions {
-						user: &message.author,
-						content: &message.content,
-						outgoing: false,
-						anonymous: false,
-						details: true,
-					},
-				)),
-			)
-			.await?;
-
-		insert_received_message(
-			&data.pg,
-			ReceivedMessage {
-				id: message.id.get(),
-				thread_id: existing_thread_id,
-				forwarded_message_id: fowarded_message.id.get(),
-			},
-		)
-		.await?;
+	let thread = if let Some(existing_thread) = existing_thread {
+		serenity::ChannelId::new(existing_thread.id)
 	} else {
+		let created_at = message.id.created_at();
+
 		let forum_post = data
 			.config
 			.forum_channel_id
@@ -86,33 +62,50 @@ async fn handle_incoming_message_impl(
 				&context.http,
 				serenity::CreateForumPost::new(
 					format!("Thread from {}", &message.author.tag()),
-					serenity::CreateMessage::new().add_embed(make_message_embed(
-						context,
-						&data.config,
-						&EmbedOptions {
-							user: &message.author,
-							content: &message.content,
-							outgoing: false,
-							anonymous: false,
-							details: true,
-						},
-					)),
+					make_info_message(context, &data.config, &message.author, created_at).await?,
 				),
 			)
 			.await?;
 
-		insert_thread(&data.pg, forum_post.id.get(), message.channel_id.get()).await?;
-
-		insert_received_message(
+		insert_thread(
 			&data.pg,
-			ReceivedMessage {
-				id: message.id.get(),
-				thread_id: forum_post.id.get(),
-				forwarded_message_id: forum_post.id.get(), // first message in thread always has thread id
+			Thread {
+				id: forum_post.id.get(),
+				dm_channel_id: message.channel_id.get(),
+				created_at: *created_at,
 			},
 		)
 		.await?;
-	}
+
+		forum_post.id
+	};
+
+	let fowarded_message = thread
+		.send_message(
+			context,
+			serenity::CreateMessage::new().add_embed(make_message_embed(
+				context,
+				&data.config,
+				&EmbedOptions {
+					user: &message.author,
+					content: &message.content,
+					outgoing: false,
+					anonymous: false,
+					details: true,
+				},
+			)),
+		)
+		.await?;
+
+	insert_received_message(
+		&data.pg,
+		ReceivedMessage {
+			id: message.id.get(),
+			thread_id: thread.get(),
+			forwarded_message_id: fowarded_message.id.get(),
+		},
+	)
+	.await?;
 
 	message
 		.react(

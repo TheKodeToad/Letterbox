@@ -7,7 +7,7 @@ A simplistic ModMail bot for Discord using modern features like forums.
 - [x] Edit command
 - [x] Delete command
 - [ ] Block command
-- [ ] Mention staff
+- [x] Mention staff
 - [ ] Contact command
 - [x] Deleting thread from db if it is deleted on Discord
 - [ ] Gracefully handling thread which was gone whilst the bot was offline.

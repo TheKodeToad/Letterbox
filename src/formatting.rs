@@ -1,4 +1,9 @@
-use poise::serenity_prelude as serenity;
+use std::time::{SystemTime, UNIX_EPOCH};
+
+use poise::serenity_prelude::{
+	self as serenity, CacheHttp, CreateAllowedMentions, CreateEmbedAuthor, FormattedTimestamp,
+	Mentionable, User,
+};
 
 use crate::config::Config;
 
@@ -53,4 +58,88 @@ pub fn make_message_embed(
 	}
 
 	result
+}
+
+pub async fn make_info_message(
+	context: &serenity::Context,
+	config: &Config,
+	user: &serenity::User,
+	timestamp: serenity::Timestamp,
+) -> eyre::Result<serenity::CreateMessage> {
+	let member = config.server_id.member(context, user.id).await.ok();
+
+	let mut embed = serenity::CreateEmbed::new()
+		.author(
+			CreateEmbedAuthor::new(user.display_name()).icon_url(
+				user.avatar_url()
+					.unwrap_or_else(|| user.default_avatar_url()),
+			),
+		)
+		.footer(serenity::CreateEmbedFooter::new(format!(
+			"Username: {} ({})",
+			user.tag(),
+			user.id,
+		)))
+		.color(serenity::colours::branding::BLURPLE);
+
+	let created_at_text = serenity::FormattedTimestamp::new(
+		user.created_at(),
+		Some(serenity::FormattedTimestampStyle::ShortDateTime),
+	)
+	.to_string();
+
+	embed = embed.field("Account Created At", created_at_text, true);
+
+	if let Some(member) = member {
+		let joined_at_text = member
+			.joined_at
+			.map(|joined_at| {
+				serenity::FormattedTimestamp::new(
+					joined_at,
+					Some(serenity::FormattedTimestampStyle::ShortDateTime),
+				)
+				.to_string()
+			})
+			.unwrap_or("*Unknown Date*".to_string());
+
+		embed = embed.field("Server Member Since", joined_at_text, true);
+
+		if let Some(roles) = member.roles(&context.cache) {
+			let roles_text = if roles.is_empty() {
+				"*No Roles*".to_string()
+			} else {
+				roles
+					.iter()
+					.map(|role| role.mention().to_string())
+					.collect::<Vec<String>>()
+					.join(" ")
+			};
+
+			embed = embed.field("Roles", roles_text, false);
+		}
+	}
+
+	let discord_timestamp = serenity::FormattedTimestamp::new(
+		timestamp,
+		Some(serenity::FormattedTimestampStyle::RelativeTime),
+	);
+
+	let opened_message = format!(
+		"📩 Thread opened by {} {}.",
+		user.id.mention(),
+		discord_timestamp
+	);
+
+	Ok(serenity::CreateMessage::new()
+		.content(if let Some(role) = config.mention_role {
+			format!("{}: {opened_message}", role.mention())
+		} else {
+			opened_message
+		})
+		.allowed_mentions(if let Some(role) = config.mention_role {
+			serenity::CreateAllowedMentions::new().roles([role])
+		} else {
+			serenity::CreateAllowedMentions::new()
+		})
+		.embed(embed))
 }

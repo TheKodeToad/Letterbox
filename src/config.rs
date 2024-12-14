@@ -1,5 +1,5 @@
-use poise::serenity_prelude as serenity;
-use std::{collections::HashSet, fs, path::Path};
+use poise::serenity_prelude::{self as serenity, Mention, Mentionable, RoleId};
+use std::{collections::HashSet, fmt::Display, fs, path::Path};
 
 #[derive(serde::Serialize, serde::Deserialize)]
 pub struct Config {
@@ -13,15 +13,7 @@ pub struct Config {
 	pub status: String,
 	#[serde(default = "anonymous_display_name") /* Staff Member */]
 	pub anonymous_display_name: String,
-	pub mention: Option<MentionMode>,
-}
-
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(untagged, rename_all = "snake_case")]
-pub enum MentionMode {
-	Everyone,
-	Here,
-	RoleId(u64),
+	pub mention_role: Option<RoleId>,
 }
 
 impl Config {

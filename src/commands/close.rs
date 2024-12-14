@@ -1,9 +1,10 @@
 use poise::serenity_prelude as serenity;
+use poise::serenity_prelude::Mentionable;
 
 use super::common::require_staff;
 use super::common::Context;
 use crate::data::threads::delete_thread;
-use crate::data::threads::get_thread_dm_channel;
+use crate::data::threads::get_thread;
 
 /// Close a ModMail thread.
 #[poise::command(
@@ -30,9 +31,7 @@ pub async fn aclose(context: Context<'_>) -> eyre::Result<()> {
 }
 
 async fn close_impl(context: Context<'_>, anonymous: bool) -> eyre::Result<()> {
-	let Some(dm_channel_id) =
-		get_thread_dm_channel(&context.data().pg, context.channel_id().get()).await?
-	else {
+	let Some(thread) = get_thread(&context.data().pg, context.channel_id().get()).await? else {
 		context
 			.send(
 				poise::CreateReply::default()
@@ -42,7 +41,7 @@ async fn close_impl(context: Context<'_>, anonymous: bool) -> eyre::Result<()> {
 			.await?;
 		return Ok(());
 	};
-	let dm_channel = serenity::ChannelId::new(dm_channel_id);
+	let dm_channel = serenity::ChannelId::new(thread.dm_channel_id);
 
 	context.defer().await?;
 
@@ -51,7 +50,7 @@ async fn close_impl(context: Context<'_>, anonymous: bool) -> eyre::Result<()> {
 	let close_message = if anonymous {
 		"⛔ Thread closed.".to_string()
 	} else {
-		format!("⛔ Thread closed by <@{}>.", context.author().id)
+		format!("⛔ Thread closed by {}.", context.author().mention())
 	};
 
 	dm_channel

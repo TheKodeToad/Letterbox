@@ -2,7 +2,7 @@ use poise::serenity_prelude as serenity;
 
 use crate::data::sent_messages::insert_sent_message;
 use crate::data::sent_messages::SentMessage;
-use crate::data::threads::get_thread_dm_channel;
+use crate::data::threads::get_thread;
 use crate::formatting::make_message_embed;
 use crate::formatting::EmbedOptions;
 
@@ -44,9 +44,7 @@ pub async fn areply(
 }
 
 pub async fn reply_impl(context: Context<'_>, message: &str, anonymous: bool) -> eyre::Result<()> {
-	let Some(dm_channel_id) =
-		get_thread_dm_channel(&context.data().pg, context.channel_id().get()).await?
-	else {
+	let Some(thread) = get_thread(&context.data().pg, context.channel_id().get()).await? else {
 		context
 			.send(
 				poise::CreateReply::default()
@@ -57,7 +55,7 @@ pub async fn reply_impl(context: Context<'_>, message: &str, anonymous: bool) ->
 		return Ok(());
 	};
 
-	let dm_channel = serenity::ChannelId::new(dm_channel_id);
+	let dm_channel = serenity::ChannelId::new(thread.dm_channel_id);
 
 	let forwarded_message = dm_channel
 		.send_message(
