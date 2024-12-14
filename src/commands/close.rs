@@ -6,7 +6,7 @@ use super::common::Context;
 use crate::data::threads::delete_thread;
 use crate::data::threads::get_thread;
 
-/// Close a ModMail thread.
+/// Close a mod-mail thread.
 #[poise::command(
 	slash_command,
 	prefix_command,
@@ -18,7 +18,7 @@ pub async fn close(context: Context<'_>) -> eyre::Result<()> {
 	close_impl(context, false).await
 }
 
-/// Close a ModMail thread anonymously.
+/// Close a mod-mail thread anonymously.
 #[poise::command(
 	slash_command,
 	prefix_command,

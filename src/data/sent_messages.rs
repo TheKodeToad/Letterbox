@@ -13,8 +13,7 @@ pub async fn get_sent_message(
 	let rows = pg
 		.query(
 			r#"
-				SELECT "id", "thread_id", "forwarded_message_id", "author_id", "anonymous"
-				FROM "sent_messages"
+				SELECT * FROM "sent_messages"
 				WHERE "id" = $1
 			"#,
 			&[&(id as i64)],

@@ -9,7 +9,7 @@ use crate::formatting::EmbedOptions;
 use super::common::require_staff;
 use super::common::Context;
 
-/// Reply to a ModMail thread.
+/// Reply to a mod-mail thread.
 #[poise::command(
 	slash_command,
 	prefix_command,
@@ -26,7 +26,7 @@ pub async fn reply(
 	reply_impl(context, &message, false).await
 }
 
-/// Reply to a ModMail thread anonymously.
+/// Reply to a mod-mail thread anonymously.
 #[poise::command(
 	slash_command,
 	prefix_command,

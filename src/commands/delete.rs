@@ -8,7 +8,7 @@ use crate::data::threads::get_thread;
 use super::common::require_staff;
 use super::common::PrefixContext;
 
-/// Delete a ModMail reply.
+/// Delete a mod-mail reply.
 #[poise::command(
 	prefix_command,
 	guild_only,

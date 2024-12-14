@@ -5,7 +5,7 @@ use crate::{
 		received_messages::{insert_received_message, ReceivedMessage},
 		threads::{get_thread_by_dm_channel, insert_thread, Thread},
 	},
-	formatting::{make_info_message, make_message_embed, EmbedOptions},
+	formatting::{make_info_content, make_info_embed, make_message_embed, EmbedOptions},
 	Data,
 };
 
@@ -62,7 +62,15 @@ async fn handle_incoming_message_impl(
 				&context.http,
 				serenity::CreateForumPost::new(
 					format!("Thread from {}", &message.author.tag()),
-					make_info_message(context, &data.config, &message.author, created_at).await?,
+					serenity::CreateMessage::new()
+						.content(make_info_content(
+							&data.config,
+							message.author.id,
+							message.author.id,
+							created_at,
+						))
+						.allowed_mentions(data.config.allowed_mentions())
+						.embed(make_info_embed(context, &data.config, &message.author).await?),
 				),
 			)
 			.await?;
@@ -72,6 +80,8 @@ async fn handle_incoming_message_impl(
 			Thread {
 				id: forum_post.id.get(),
 				dm_channel_id: message.channel_id.get(),
+				user_id: message.author.id.get(),
+				opened_by_id: message.author.id.get(),
 				created_at: *created_at,
 			},
 		)

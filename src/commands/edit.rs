@@ -2,17 +2,14 @@ use eyre::OptionExt;
 use poise::serenity_prelude as serenity;
 
 use crate::{
-	data::{
-		sent_messages::{get_sent_message},
-		threads::get_thread,
-	},
+	data::{sent_messages::get_sent_message, threads::get_thread},
 	formatting::{make_message_embed, EmbedOptions},
 };
 
 use super::common::require_staff;
 use super::common::PrefixContext;
 
-/// Edit a ModMail reply.
+/// Edit a mod-mail reply.
 #[poise::command(
 	prefix_command,
 	guild_only,

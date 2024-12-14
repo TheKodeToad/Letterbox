@@ -1,4 +1,4 @@
-use poise::serenity_prelude::{self as serenity, RoleId};
+use poise::serenity_prelude as serenity;
 use std::{collections::HashSet, fs, path::Path};
 
 #[derive(serde::Serialize, serde::Deserialize)]
@@ -13,7 +13,7 @@ pub struct Config {
 	pub status: String,
 	#[serde(default = "anonymous_display_name") /* Staff Member */]
 	pub anonymous_display_name: String,
-	pub mention_role: Option<RoleId>,
+	pub mention_role: Option<serenity::RoleId>,
 }
 
 impl Config {
@@ -24,6 +24,14 @@ impl Config {
 
 	pub fn is_staff(&self, roles: &[serenity::RoleId]) -> bool {
 		roles.iter().any(|role| self.staff_roles.contains(role))
+	}
+
+	pub fn allowed_mentions(&self) -> serenity::CreateAllowedMentions {
+		if let Some(role) = self.mention_role {
+			serenity::CreateAllowedMentions::new().roles([role])
+		} else {
+			serenity::CreateAllowedMentions::new()
+		}
 	}
 }
 
