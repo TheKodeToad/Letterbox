@@ -3,7 +3,7 @@ use poise::serenity_prelude as serenity;
 
 use crate::{
 	data::{
-		sent_messages::{self, get_sent_message},
+		sent_messages::{get_sent_message},
 		threads::get_thread,
 	},
 	formatting::{make_message_embed, EmbedOptions},

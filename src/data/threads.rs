@@ -1,6 +1,4 @@
-use std::time::SystemTime;
 
-use poise::serenity_prelude::Timestamp;
 use tokio_postgres::Row;
 
 pub struct Thread {

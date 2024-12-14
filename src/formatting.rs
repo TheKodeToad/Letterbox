@@ -1,9 +1,5 @@
-use std::time::{SystemTime, UNIX_EPOCH};
 
-use poise::serenity_prelude::{
-	self as serenity, CacheHttp, CreateAllowedMentions, CreateEmbedAuthor, FormattedTimestamp,
-	Mentionable, User,
-};
+use poise::serenity_prelude::{self as serenity, Mentionable};
 
 use crate::config::Config;
 
@@ -70,7 +66,7 @@ pub async fn make_info_message(
 
 	let mut embed = serenity::CreateEmbed::new()
 		.author(
-			CreateEmbedAuthor::new(user.display_name()).icon_url(
+			serenity::CreateEmbedAuthor::new(user.display_name()).icon_url(
 				user.avatar_url()
 					.unwrap_or_else(|| user.default_avatar_url()),
 			),

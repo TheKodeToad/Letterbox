@@ -1,5 +1,5 @@
-use poise::serenity_prelude::{self as serenity, Mention, Mentionable, RoleId};
-use std::{collections::HashSet, fmt::Display, fs, path::Path};
+use poise::serenity_prelude::{self as serenity, RoleId};
+use std::{collections::HashSet, fs, path::Path};
 
 #[derive(serde::Serialize, serde::Deserialize)]
 pub struct Config {

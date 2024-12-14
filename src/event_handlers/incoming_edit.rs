@@ -59,7 +59,7 @@ pub async fn handle_incoming_edit(
 		)
 		.await;
 
-	if let Err(_) = edit_result {
+	if edit_result.is_err() {
 		message
 			.channel_id
 			.send_message(
