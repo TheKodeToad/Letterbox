@@ -42,6 +42,8 @@ pub async fn delete(context: PrefixContext<'_>) -> eyre::Result<()> {
 
 	let thread = serenity::ChannelId::new(sent_message.thread_id);
 
+	context.defer().await?;
+
 	dm_channel
 		.delete_message(&context.http(), sent_message.forwarded_message_id)
 		.await?;

@@ -21,20 +21,22 @@ pub async fn contact(
 ) -> eyre::Result<()> {
 	if user.bot {
 		context
-			.say("❌ Bot users cannot receive direct messages.")
+			.send(poise::CreateReply::default().content("❌ Bot users cannot receive direct messages.").ephemeral(true))
 			.await?;
 		return Ok(());
 	}
 
 	if let Some(thread) = get_thread_by_user(&context.data().pg, user.id.get()).await? {
 		context
-			.say(format!(
+			.send(poise::CreateReply::default().content(format!(
 				"❌ The specified user already has an open thread: {}.",
 				serenity::Mention::Channel(serenity::ChannelId::new(thread.id))
-			))
+			)).ephemeral(true))
 			.await?;
 		return Ok(());
 	}
+
+	context.defer().await?;
 
 	let dm_channel = user.create_dm_channel(context.http()).await?;
 

@@ -41,6 +41,7 @@ async fn close_impl(context: Context<'_>, anonymous: bool) -> eyre::Result<()> {
 			.await?;
 		return Ok(());
 	};
+
 	let dm_channel = serenity::ChannelId::new(thread.dm_channel_id);
 
 	context.defer().await?;
