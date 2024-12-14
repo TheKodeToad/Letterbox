@@ -44,7 +44,8 @@ pub async fn areply(
 }
 
 pub async fn reply_impl(context: Context<'_>, message: &str, anonymous: bool) -> eyre::Result<()> {
-	let Some(thread) = get_thread(&context.data().pg, context.channel_id().get()).await? else {
+	let Some(thread_data) = get_thread(&context.data().pg, context.channel_id().get()).await?
+	else {
 		context
 			.send(
 				poise::CreateReply::default()
@@ -55,7 +56,7 @@ pub async fn reply_impl(context: Context<'_>, message: &str, anonymous: bool) ->
 		return Ok(());
 	};
 
-	let dm_channel = serenity::ChannelId::new(thread.dm_channel_id);
+	let dm_channel = serenity::ChannelId::new(thread_data.dm_channel_id);
 
 	let forwarded_message = dm_channel
 		.send_message(

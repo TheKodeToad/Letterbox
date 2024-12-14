@@ -61,13 +61,15 @@ async fn handle_incoming_message_impl(
 			.create_forum_post(
 				&context.http,
 				serenity::CreateForumPost::new(
-					format!("Thread from {}", &message.author.tag()),
+					format!("🟢 Thread from {}", &message.author.tag()),
 					serenity::CreateMessage::new()
 						.content(make_info_content(
 							&data.config,
 							message.author.id,
 							message.author.id,
 							created_at,
+							None,
+							None,
 						))
 						.allowed_mentions(data.config.allowed_mentions())
 						.embed(make_info_embed(context, &data.config, &message.author).await?),

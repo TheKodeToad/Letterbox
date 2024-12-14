@@ -21,17 +21,25 @@ pub async fn contact(
 ) -> eyre::Result<()> {
 	if user.bot {
 		context
-			.send(poise::CreateReply::default().content("❌ Bot users cannot receive direct messages.").ephemeral(true))
+			.send(
+				poise::CreateReply::default()
+					.content("❌ Bot users cannot receive direct messages.")
+					.ephemeral(true),
+			)
 			.await?;
 		return Ok(());
 	}
 
 	if let Some(thread) = get_thread_by_user(&context.data().pg, user.id.get()).await? {
 		context
-			.send(poise::CreateReply::default().content(format!(
-				"❌ The specified user already has an open thread: {}.",
-				serenity::Mention::Channel(serenity::ChannelId::new(thread.id))
-			)).ephemeral(true))
+			.send(
+				poise::CreateReply::default()
+					.content(format!(
+						"❌ The specified user already has an open thread: {}.",
+						serenity::Mention::Channel(serenity::ChannelId::new(thread.id))
+					))
+					.ephemeral(true),
+			)
 			.await?;
 		return Ok(());
 	}
@@ -49,13 +57,15 @@ pub async fn contact(
 		.create_forum_post(
 			&context.http(),
 			serenity::CreateForumPost::new(
-				format!("Thread for {}", &user.tag()),
+				format!("🟢 Thread for {}", &user.tag()),
 				serenity::CreateMessage::new()
 					.content(make_info_content(
 						&context.data().config,
 						user.id,
 						context.author().id,
 						created_at,
+						None,
+						None,
 					))
 					.allowed_mentions(context.data().config.allowed_mentions())
 					.embed(
@@ -78,7 +88,13 @@ pub async fn contact(
 	)
 	.await?;
 
-	context.say(format!("✅ Thread opened for {}: {}", user.mention(), forum_post.mention())).await?;
+	context
+		.say(format!(
+			"✅ Thread opened for {}: {}",
+			user.mention(),
+			forum_post.mention()
+		))
+		.await?;
 
 	Ok(())
 }

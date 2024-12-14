@@ -1,6 +1,4 @@
-use core::time;
-
-use poise::serenity_prelude::{self as serenity, Mentionable, UserId};
+use poise::serenity_prelude::{self as serenity, Mentionable};
 
 use crate::config::Config;
 
@@ -120,33 +118,62 @@ pub async fn make_info_embed(
 
 pub fn make_info_content(
 	config: &Config,
-	user_id: UserId,
-	actor_id: UserId,
-	timestamp: serenity::Timestamp,
+	user_id: serenity::UserId,
+	opened_by_id: serenity::UserId,
+	opened_timestamp: serenity::Timestamp,
+	closed_by_id: Option<serenity::UserId>,
+	closed_timestamp: Option<serenity::Timestamp>,
 ) -> String {
-	let discord_timestamp = serenity::FormattedTimestamp::new(
-		timestamp,
+	let opened_discord_timestamp = serenity::FormattedTimestamp::new(
+		opened_timestamp,
 		Some(serenity::FormattedTimestampStyle::RelativeTime),
 	);
 
-	let opened_message = if user_id == actor_id {
-		format!(
-			"📩 Thread opened by {} {}.",
-			user_id.mention(),
-			discord_timestamp
-		)
-	} else {
-		format!(
-			"📩 Thread for {} opened by {} {}",
-			user_id.mention(),
-			actor_id.mention(),
-			discord_timestamp
-		)
-	};
+	let mut result = String::new();
 
 	if let Some(role) = config.mention_role {
-		format!("{}: {}", role.mention(), opened_message)
+		result += &role.mention().to_string();
+		result += " ";
+	}
+
+	if user_id == opened_by_id {
+		result += &format!(
+			"📩 Thread opened by {} {}",
+			user_id.mention(),
+			opened_discord_timestamp
+		);
 	} else {
-		opened_message
+		result += &format!(
+			"📩 Thread for {} opened by {} {}",
+			user_id.mention(),
+			opened_by_id.mention(),
+			opened_discord_timestamp
+		);
+	}
+
+	if closed_by_id.is_some() && closed_timestamp.is_some() {
+		let closed_discord_timestamp = serenity::FormattedTimestamp::new(
+			closed_timestamp.unwrap(),
+			Some(serenity::FormattedTimestampStyle::RelativeTime),
+		);
+
+		result += &format!(
+			" • ⛔ Thread closed by {} {}",
+			serenity::Mention::User(closed_by_id.unwrap()),
+			closed_discord_timestamp
+		);
+	}
+
+	result
+}
+
+pub fn make_thread_title(title: &str, open: bool) -> String {
+	let trimmed =
+		title.trim_start_matches(|char: char| char.is_whitespace() || char == '🟢' || char == '🔴');
+
+	if open {
+		format!("🟢 {trimmed}")
+	} else {
+		format!("🔴 {trimmed}")
 	}
 }
