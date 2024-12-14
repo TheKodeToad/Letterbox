@@ -133,7 +133,7 @@ pub fn make_info_content(
 
 	if let Some(role) = config.mention_role {
 		result += &role.mention().to_string();
-		result += " ";
+		result += "\n\n";
 	}
 
 	if user_id == opened_by_id {
@@ -158,7 +158,7 @@ pub fn make_info_content(
 		);
 
 		result += &format!(
-			" • ⛔ Thread closed by {} {}",
+			"\n⛔ Thread closed by {} {}",
 			serenity::Mention::User(closed_by_id.unwrap()),
 			closed_discord_timestamp
 		);
