@@ -12,8 +12,7 @@ use super::util::{require_staff, Context};
 	slash_command,
 	prefix_command,
 	guild_only,
-	check = "require_staff",
-	aliases("c")
+	check = "require_staff"
 )]
 pub async fn contact(
 	context: Context<'_>,

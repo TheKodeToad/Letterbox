@@ -2,8 +2,7 @@ use poise::serenity_prelude as serenity;
 
 use crate::{
 	data::{
-		received_messages::{insert_received_message, ReceivedMessage},
-		threads::{get_thread_by_dm_channel, insert_thread, Thread},
+		blocked_users::is_user_blocked, received_messages::{insert_received_message, ReceivedMessage}, threads::{get_thread_by_dm_channel, insert_thread, Thread}
 	},
 	formatting::{make_info_content, make_info_embed, make_message_embed, EmbedOptions},
 	util::{clone_attachment, first_image_attachment},
@@ -54,6 +53,10 @@ async fn handle_incoming_message_impl(
 	let thread = if let Some(existing_thread) = existing_thread {
 		serenity::ChannelId::new(existing_thread.id)
 	} else {
+		if is_user_blocked(&data.pg, message.author.id.get()).await? {
+			return Ok(());
+		}
+
 		let created_at = message.id.created_at();
 
 		let info_builder = serenity::CreateMessage::new()
