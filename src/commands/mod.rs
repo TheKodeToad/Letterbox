@@ -7,11 +7,11 @@ use reply::areply;
 use reply::reply;
 
 mod close;
-mod util;
 mod contact;
 mod delete;
 mod edit;
 mod reply;
+mod util;
 
 pub fn commands() -> Vec<poise::Command<crate::Data, eyre::Error>> {
 	vec![

@@ -95,7 +95,10 @@ pub async fn reply_impl(context: Context<'_>, message: &str, anonymous: bool) ->
 	let forwarded_message = dm_channel
 		.send_files(
 			&context,
-			image_attachment_clone.as_ref().map(|attachment| vec![attachment.clone()]).unwrap_or_default(),
+			image_attachment_clone
+				.as_ref()
+				.map(|attachment| vec![attachment.clone()])
+				.unwrap_or_default(),
 			forwarded_message_builder,
 		)
 		.await?;
@@ -117,9 +120,7 @@ pub async fn reply_impl(context: Context<'_>, message: &str, anonymous: bool) ->
 		source_message_builder = source_message_builder.attachment(image_attachment_clone);
 	}
 
-	let source_message_handle = context
-		.send(source_message_builder)
-		.await?;
+	let source_message_handle = context.send(source_message_builder).await?;
 
 	insert_sent_message(
 		&context.data().pg,

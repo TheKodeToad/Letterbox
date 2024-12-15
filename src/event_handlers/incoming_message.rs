@@ -1,4 +1,4 @@
-use poise::serenity_prelude::{self as serenity, CreateAttachment};
+use poise::serenity_prelude as serenity;
 
 use crate::{
 	data::{
