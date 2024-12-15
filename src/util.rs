@@ -24,3 +24,16 @@ pub async fn clone_attachment(
 
 	Ok(result)
 }
+
+pub fn get_json_error_code(error: &serenity::Error) -> Option<isize> {
+	if let serenity::Error::Http(serenity::HttpError::UnsuccessfulRequest(
+		serenity::ErrorResponse {
+			error: serenity::DiscordJsonError { code, .. },
+			..
+		},
+	)) = error {
+		Some(*code)
+	} else {
+		None
+	}
+}
