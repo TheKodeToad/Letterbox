@@ -93,32 +93,31 @@ async fn close_impl(context: Context<'_>, silent: bool, anonymous: bool) -> eyre
 		return Err(eyre!("Channel is not guild channel!"));
 	};
 
-	thread
-		.edit_message(
-			&context.http(),
-			thread.id.get(),
-			serenity::EditMessage::new().content(make_info_content(
-				&context.data().config,
-				serenity::UserId::new(thread_data.user_id),
-				serenity::UserId::new(thread_data.opened_by_id),
-				thread_data.created_at.into(),
-				Some(context.author().id),
-				Some(context.created_at()),
-			)),
-		)
-		.await?;
+	let info_builder = serenity::EditMessage::new().content(make_info_content(
+		&context.data().config,
+		serenity::UserId::new(thread_data.user_id),
+		serenity::UserId::new(thread_data.opened_by_id),
+		thread_data.created_at.into(),
+		Some(context.author().id),
+		Some(context.created_at()),
+	));
 
-	let current_thread_name = thread
-		.name
-		.trim_start_matches(|char: char| char.is_whitespace() || char == '🟢' || char == '🔴');
 	thread
-		.edit_thread(
-			&context.http(),
-			serenity::EditThread::new()
-				.locked(true)
-				.archived(true)
-				.name(format!("🔴 {current_thread_name}")),
-		)
+	.edit_message(
+		&context.http(),
+		thread.id.get(),
+		info_builder,
+	)
+	.await?;
+
+	let mut edit_thread_builder = serenity::EditThread::new().locked(true).archived(true);
+
+	if let Some(closed_tag_id) = context.data().config.forum_channel.closed_tag_id {
+		edit_thread_builder = edit_thread_builder.applied_tags([closed_tag_id]);
+	}
+
+	thread
+		.edit_thread(&context.http(), edit_thread_builder)
 		.await?;
 
 	Ok(())

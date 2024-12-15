@@ -50,30 +50,31 @@ pub async fn contact(
 
 	let created_at = context.created_at();
 
+	let info_builder = serenity::CreateMessage::new()
+		.content(make_info_content(
+			&context.data().config,
+			user.id,
+			context.author().id,
+			created_at,
+			None,
+			None,
+		))
+		.allowed_mentions(context.data().config.allowed_mentions())
+		.embed(make_info_embed(context.serenity_context(), &context.data().config, &user).await?);
+
+	let mut forum_post_builder =
+		serenity::CreateForumPost::new(format!("Thread for {}", &user.tag()), info_builder);
+
+	if let Some(open_tag_id) = context.data().config.forum_channel.open_tag_id {
+		forum_post_builder = forum_post_builder.add_applied_tag(open_tag_id)
+	}
+
 	let forum_post = context
 		.data()
 		.config
-		.forum_channel_id
-		.create_forum_post(
-			&context.http(),
-			serenity::CreateForumPost::new(
-				format!("🟢 Thread for {}", &user.tag()),
-				serenity::CreateMessage::new()
-					.content(make_info_content(
-						&context.data().config,
-						user.id,
-						context.author().id,
-						created_at,
-						None,
-						None,
-					))
-					.allowed_mentions(context.data().config.allowed_mentions())
-					.embed(
-						make_info_embed(context.serenity_context(), &context.data().config, &user)
-							.await?,
-					),
-			),
-		)
+		.forum_channel
+		.id
+		.create_forum_post(&context.http(), forum_post_builder)
 		.await?;
 
 	insert_thread(

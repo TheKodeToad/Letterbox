@@ -171,14 +171,3 @@ pub fn make_info_content(
 
 	result
 }
-
-pub fn make_thread_title(title: &str, open: bool) -> String {
-	let trimmed =
-		title.trim_start_matches(|char: char| char.is_whitespace() || char == '🟢' || char == '🔴');
-
-	if open {
-		format!("🟢 {trimmed}")
-	} else {
-		format!("🔴 {trimmed}")
-	}
-}

@@ -4,7 +4,7 @@ use std::{collections::HashSet, fs, path::Path};
 #[derive(serde::Serialize, serde::Deserialize)]
 pub struct Config {
 	pub server_id: serenity::GuildId,
-	pub forum_channel_id: serenity::ChannelId,
+	pub forum_channel: ForumChannelConfig,
 	#[serde(default = "staff_roles_default" /* [] */)]
 	pub staff_roles: HashSet<serenity::RoleId>,
 	#[serde(default = "prefix_default" /* = */)]
@@ -14,6 +14,13 @@ pub struct Config {
 	#[serde(default = "anonymous_display_name") /* Staff Member */]
 	pub anonymous_display_name: String,
 	pub mention_role: Option<serenity::RoleId>,
+}
+
+#[derive(serde::Serialize, serde::Deserialize)]
+pub struct ForumChannelConfig {
+	pub id: serenity::ChannelId,
+	pub open_tag_id: Option<serenity::ForumTagId>,
+	pub closed_tag_id: Option<serenity::ForumTagId>,
 }
 
 impl Config {

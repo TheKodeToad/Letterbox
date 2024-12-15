@@ -23,7 +23,7 @@ pub async fn handle_thread_create_warning(
 		return Ok(());
 	};
 
-	if parent_id != data.config.forum_channel_id {
+	if parent_id != data.config.forum_channel.id {
 		return Ok(());
 	}
 

@@ -2,14 +2,12 @@ mod incoming_edit;
 mod incoming_message;
 mod thread_create_warning;
 mod thread_delete;
-mod thread_rename_correction;
 
 use incoming_edit::handle_incoming_edit;
 use incoming_message::handle_incoming_message;
 use poise::serenity_prelude as serenity;
 use thread_create_warning::handle_thread_create_warning;
 use thread_delete::handle_thread_delete;
-use thread_rename_correction::handle_thread_rename_correction;
 
 use crate::Data;
 
@@ -28,9 +26,6 @@ pub async fn handle_event(
 		}
 		serenity::FullEvent::ThreadDelete { thread, .. } => {
 			handle_thread_delete(thread, data).await?;
-		}
-		serenity::FullEvent::ThreadUpdate { new, .. } => {
-			handle_thread_rename_correction(context, new, data).await?;
 		}
 		_ => (),
 	};
