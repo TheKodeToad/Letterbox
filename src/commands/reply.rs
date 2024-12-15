@@ -33,9 +33,9 @@ pub async fn reply(
 	prefix_command,
 	guild_only,
 	check = "require_staff",
-	aliases("anonreply", "anonymousreply", "ar")
+	aliases("ar", "areply")
 )]
-pub async fn areply(
+pub async fn anon_reply(
 	context: Context<'_>,
 	#[rest]
 	#[description = "The message to send."]

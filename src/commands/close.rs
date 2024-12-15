@@ -17,7 +17,7 @@ use crate::formatting::make_info_content;
 	aliases("c")
 )]
 pub async fn close(context: Context<'_>) -> eyre::Result<()> {
-	close_impl(context, false).await
+	close_impl(context, false, false).await
 }
 
 /// Close a mod-mail thread anonymously.
@@ -26,13 +26,25 @@ pub async fn close(context: Context<'_>) -> eyre::Result<()> {
 	prefix_command,
 	guild_only,
 	check = "require_staff",
-	aliases("ac", "anonclose")
+	aliases("ac", "aclose")
 )]
-pub async fn aclose(context: Context<'_>) -> eyre::Result<()> {
-	close_impl(context, true).await
+pub async fn anon_close(context: Context<'_>) -> eyre::Result<()> {
+	close_impl(context, false, true).await
 }
 
-async fn close_impl(context: Context<'_>, anonymous: bool) -> eyre::Result<()> {
+/// Close a mod-mail thread without sending the "Thread closed" message.
+#[poise::command(
+	slash_command,
+	prefix_command,
+	guild_only,
+	check = "require_staff",
+	aliases("sc", "sclose")
+)]
+pub async fn silent_close(context: Context<'_>) -> eyre::Result<()> {
+	close_impl(context, true, true).await
+}
+
+async fn close_impl(context: Context<'_>, silent: bool, anonymous: bool) -> eyre::Result<()> {
 	let Some(thread_data) = get_thread(&context.data().pg, context.channel_id().get()).await?
 	else {
 		context
@@ -51,21 +63,23 @@ async fn close_impl(context: Context<'_>, anonymous: bool) -> eyre::Result<()> {
 
 	delete_thread(&context.data().pg, context.channel_id().get()).await?;
 
-	let close_message = if anonymous {
-		"⛔ Thread closed.".to_string()
-	} else {
-		format!("⛔ Thread closed by {}.", context.author().mention())
-	};
+	let close_message = format!("⛔ Thread closed by {}.", context.author().mention());
 
-	dm_channel
-		.send_message(
-			&context.http(),
-			serenity::CreateMessage::new()
-				.content(&close_message)
-				.allowed_mentions(serenity::CreateAllowedMentions::new()),
-		)
-		.await
-		.ok();
+	if !silent {
+		dm_channel
+			.send_message(
+				&context.http(),
+				serenity::CreateMessage::new()
+					.content(if anonymous {
+						format!("⛔ Thread closed.").to_string()
+					} else {
+						close_message.to_string()
+					})
+					.allowed_mentions(serenity::CreateAllowedMentions::new()),
+			)
+			.await
+			.ok();
+	}
 
 	context.say(&close_message).await?;
 

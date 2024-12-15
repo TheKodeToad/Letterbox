@@ -1,9 +1,10 @@
-use close::aclose;
+use close::anon_close;
 use close::close;
+use close::silent_close;
 use contact::contact;
 use delete::delete;
 use edit::edit;
-use reply::areply;
+use reply::anon_reply;
 use reply::reply;
 
 mod close;
@@ -16,11 +17,12 @@ mod util;
 pub fn commands() -> Vec<poise::Command<crate::Data, eyre::Error>> {
 	vec![
 		reply(),
-		areply(),
+		anon_reply(),
 		delete(),
 		edit(),
 		close(),
-		aclose(),
+		anon_close(),
+		silent_close(),
 		contact(),
 	]
 }
