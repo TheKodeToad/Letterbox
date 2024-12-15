@@ -1,4 +1,4 @@
-use poise::serenity_prelude as serenity;
+use poise::serenity_prelude::{self as serenity, CreateAttachment};
 
 use crate::{
 	data::{
@@ -6,6 +6,7 @@ use crate::{
 		threads::{get_thread_by_dm_channel, insert_thread, Thread},
 	},
 	formatting::{make_info_content, make_info_embed, make_message_embed, EmbedOptions},
+	util::{clone_attachment, first_image_attachment},
 	Data,
 };
 
@@ -92,20 +93,34 @@ async fn handle_incoming_message_impl(
 		forum_post.id
 	};
 
+	let image_attachment = first_image_attachment(&message.attachments);
+	let image_filename = image_attachment.map(|attachment| attachment.filename.clone());
+	let cloned_image_attachment = if let Some(attachment) = image_attachment {
+		Some(clone_attachment(&context.http, attachment).await?)
+	} else {
+		None
+	};
+
+	let forwarded_message_builder = serenity::CreateMessage::new().add_embed(make_message_embed(
+		context,
+		&data.config,
+		&EmbedOptions {
+			user: &message.author,
+			content: &message.content,
+			image_filename: image_filename.as_deref(),
+			outgoing: false,
+			anonymous: false,
+			user_info: true,
+		},
+	));
+
 	let fowarded_message = thread
-		.send_message(
+		.send_files(
 			context,
-			serenity::CreateMessage::new().add_embed(make_message_embed(
-				context,
-				&data.config,
-				&EmbedOptions {
-					user: &message.author,
-					content: &message.content,
-					outgoing: false,
-					anonymous: false,
-					details: true,
-				},
-			)),
+			cloned_image_attachment
+				.map(|attachment| vec![attachment])
+				.unwrap_or_default(),
+			forwarded_message_builder,
 		)
 		.await?;
 
@@ -115,6 +130,7 @@ async fn handle_incoming_message_impl(
 			id: message.id.get(),
 			thread_id: thread.get(),
 			forwarded_message_id: fowarded_message.id.get(),
+			image_filename,
 		},
 	)
 	.await?;

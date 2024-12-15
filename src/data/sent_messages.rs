@@ -4,6 +4,7 @@ pub struct SentMessage {
 	pub forwarded_message_id: u64,
 	pub author_id: u64,
 	pub anonymous: bool,
+	pub image_filename: Option<String>,
 }
 
 pub async fn get_sent_message(
@@ -32,6 +33,7 @@ pub async fn get_sent_message(
 		let fowarded_message_id: i64 = row.get("forwarded_message_id");
 		let author_id: i64 = row.get("author_id");
 		let anonymous: bool = row.get("anonymous");
+		let image_filename: Option<String> = row.get("image_filename");
 
 		Ok(Some(SentMessage {
 			id: id as u64,
@@ -39,6 +41,7 @@ pub async fn get_sent_message(
 			author_id: author_id as u64,
 			forwarded_message_id: fowarded_message_id as u64,
 			anonymous,
+			image_filename,
 		}))
 	}
 }
@@ -49,8 +52,8 @@ pub async fn insert_sent_message(
 ) -> eyre::Result<()> {
 	pg.execute(
 		r#"
-			INSERT INTO "sent_messages" ("id", "thread_id", "forwarded_message_id", "author_id", "anonymous")
-			VALUES ($1, $2, $3, $4, $5)
+			INSERT INTO "sent_messages" ("id", "thread_id", "forwarded_message_id", "author_id", "anonymous", "image_filename")
+			VALUES ($1, $2, $3, $4, $5, $6)
 		"#,
 		&[
 			&(message.id as i64),
@@ -58,6 +61,7 @@ pub async fn insert_sent_message(
 			&(message.forwarded_message_id as i64),
 			&(message.author_id as i64),
 			&message.anonymous,
+			&message.image_filename,
 		],
 	)
 	.await?;

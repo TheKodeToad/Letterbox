@@ -5,7 +5,7 @@ use crate::{
 	formatting::{make_info_content, make_info_embed},
 };
 
-use super::common::{require_staff, Context};
+use super::util::{require_staff, Context};
 
 /// Create a new mod-mail thread.
 #[poise::command(

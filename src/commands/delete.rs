@@ -5,8 +5,8 @@ use crate::data::sent_messages::delete_sent_message;
 use crate::data::sent_messages::get_sent_message;
 use crate::data::threads::get_thread;
 
-use super::common::require_staff;
-use super::common::PrefixContext;
+use super::util::require_staff;
+use super::util::PrefixContext;
 
 /// Delete a mod-mail reply.
 #[poise::command(

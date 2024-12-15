@@ -6,8 +6,8 @@ use crate::{
 	formatting::{make_message_embed, EmbedOptions},
 };
 
-use super::common::require_staff;
-use super::common::PrefixContext;
+use super::util::require_staff;
+use super::util::PrefixContext;
 
 /// Edit a mod-mail reply.
 #[poise::command(
@@ -55,39 +55,42 @@ pub async fn edit(
 
 	let thread = serenity::ChannelId::new(sent_message.thread_id);
 
+	let forwarded_message_builder = serenity::EditMessage::new().embed(make_message_embed(
+		context.serenity_context,
+		&context.data().config,
+		&EmbedOptions {
+			user: context.author(),
+			content: &content,
+			image_filename: sent_message.image_filename.as_deref(),
+			outgoing: false,
+			anonymous: sent_message.anonymous,
+			user_info: false,
+		},
+	));
+
 	dm_channel
 		.edit_message(
 			&context.http(),
 			sent_message.forwarded_message_id,
-			serenity::EditMessage::new().embed(make_message_embed(
-				context.serenity_context,
-				&context.data().config,
-				&EmbedOptions {
-					user: context.author(),
-					content: &content,
-					outgoing: false,
-					anonymous: sent_message.anonymous,
-					details: false,
-				},
-			)),
+			forwarded_message_builder,
 		)
 		.await?;
+
+	let source_message_builder = serenity::EditMessage::new().embed(make_message_embed(
+		context.serenity_context,
+		&context.data().config,
+		&EmbedOptions {
+			user: context.author(),
+			content: &content,
+			image_filename: sent_message.image_filename.as_deref(),
+			outgoing: true,
+			anonymous: sent_message.anonymous,
+			user_info: true,
+		},
+	));
+
 	thread
-		.edit_message(
-			&context.http(),
-			message_id,
-			serenity::EditMessage::new().embed(make_message_embed(
-				context.serenity_context,
-				&context.data().config,
-				&EmbedOptions {
-					user: context.author(),
-					content: &content,
-					outgoing: true,
-					anonymous: sent_message.anonymous,
-					details: true,
-				},
-			)),
-		)
+		.edit_message(&context.http(), message_id, source_message_builder)
 		.await?;
 
 	context.msg.delete(&context.http()).await?;

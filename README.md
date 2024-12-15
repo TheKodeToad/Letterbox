@@ -13,5 +13,5 @@ A simplistic ModMail bot for Discord using modern features like forums.
 - [ ] Gracefully handling thread which was gone whilst the bot was offline.
 - [ ] Delete tracking
 - [ ] Prompt before thread is opened
-- [ ] Attachments
+- [x] Attachments
 - [ ] Make database queries safer and less prone to race conditions (unlikely for this to be a very annoying issue with the size of most servers

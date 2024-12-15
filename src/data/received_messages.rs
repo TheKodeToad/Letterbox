@@ -2,6 +2,7 @@ pub struct ReceivedMessage {
 	pub id: u64,
 	pub thread_id: u64,
 	pub forwarded_message_id: u64,
+	pub image_filename: Option<String>,
 }
 
 pub async fn get_received_message(
@@ -11,7 +12,7 @@ pub async fn get_received_message(
 	let rows = pg
 		.query(
 			r#"
-				SELECT "id", "thread_id", "forwarded_message_id"
+				SELECT *
 				FROM "received_messages"
 				WHERE "id" = $1
 			"#,
@@ -29,11 +30,13 @@ pub async fn get_received_message(
 		let id: i64 = row.get("id");
 		let thread_id: i64 = row.get("thread_id");
 		let fowarded_message_id: i64 = row.get("forwarded_message_id");
+		let image_filename: Option<String> = row.get("image_filename");
 
 		Ok(Some(ReceivedMessage {
 			id: id as u64,
 			thread_id: thread_id as u64,
 			forwarded_message_id: fowarded_message_id as u64,
+			image_filename,
 		}))
 	}
 }
@@ -44,13 +47,14 @@ pub async fn insert_received_message(
 ) -> eyre::Result<()> {
 	pg.execute(
 		r#"
-			INSERT INTO "received_messages" ("id", "thread_id", "forwarded_message_id")
-			VALUES ($1, $2, $3)
+			INSERT INTO "received_messages" ("id", "thread_id", "forwarded_message_id", "image_filename")
+			VALUES ($1, $2, $3, $4)
 		"#,
 		&[
 			&(message.id as i64),
 			&(message.thread_id as i64),
 			&(message.forwarded_message_id as i64),
+			&message.image_filename,
 		],
 	)
 	.await?;

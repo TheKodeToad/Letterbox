@@ -39,23 +39,24 @@ pub async fn handle_incoming_edit(
 		.await?;
 
 	let thread = serenity::ChannelId::new(received_message.thread_id);
-	let new_embed = make_message_embed(
+	let forwarded_message_builder = serenity::EditMessage::new().add_embed(make_message_embed(
 		context,
 		&data.config,
 		&EmbedOptions {
 			user: author,
 			content,
+			image_filename: received_message.image_filename.as_deref(),
 			outgoing: false,
 			anonymous: false,
-			details: true,
+			user_info: true,
 		},
-	);
+	));
 
 	let edit_result = thread
 		.edit_message(
 			&context.http,
 			received_message.forwarded_message_id,
-			serenity::EditMessage::new().add_embed(new_embed),
+			forwarded_message_builder,
 		)
 		.await;
 

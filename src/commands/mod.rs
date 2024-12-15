@@ -7,7 +7,7 @@ use reply::areply;
 use reply::reply;
 
 mod close;
-mod common;
+mod util;
 mod contact;
 mod delete;
 mod edit;

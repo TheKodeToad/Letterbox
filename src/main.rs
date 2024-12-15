@@ -13,6 +13,7 @@ mod data;
 mod error_handler;
 mod event_handlers;
 mod formatting;
+mod util;
 
 pub struct Data {
 	config: Config,

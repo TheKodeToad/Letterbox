@@ -5,9 +5,10 @@ use crate::config::Config;
 pub struct EmbedOptions<'a> {
 	pub user: &'a serenity::User,
 	pub content: &'a str,
+	pub image_filename: Option<&'a str>,
 	pub outgoing: bool,
 	pub anonymous: bool,
-	pub details: bool,
+	pub user_info: bool,
 }
 
 pub fn make_message_embed(
@@ -44,12 +45,16 @@ pub fn make_message_embed(
 		);
 	}
 
-	if options.details {
+	if options.user_info {
 		result = result.footer(serenity::CreateEmbedFooter::new(format!(
 			"Username: {} ({})",
 			options.user.tag(),
 			options.user.id,
 		)));
+	}
+
+	if let Some(filename) = options.image_filename {
+		result = result.attachment(filename);
 	}
 
 	result

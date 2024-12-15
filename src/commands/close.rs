@@ -2,8 +2,8 @@ use eyre::eyre;
 use poise::serenity_prelude as serenity;
 use poise::serenity_prelude::Mentionable;
 
-use super::common::require_staff;
-use super::common::Context;
+use super::util::require_staff;
+use super::util::Context;
 use crate::data::threads::delete_thread;
 use crate::data::threads::get_thread;
 use crate::formatting::make_info_content;

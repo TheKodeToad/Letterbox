@@ -5,9 +5,10 @@ use crate::data::sent_messages::SentMessage;
 use crate::data::threads::get_thread;
 use crate::formatting::make_message_embed;
 use crate::formatting::EmbedOptions;
+use crate::util::first_image_attachment;
 
-use super::common::require_staff;
-use super::common::Context;
+use super::util::require_staff;
+use super::util::Context;
 
 /// Reply to a mod-mail thread.
 #[poise::command(
@@ -58,45 +59,77 @@ pub async fn reply_impl(context: Context<'_>, message: &str, anonymous: bool) ->
 
 	let dm_channel = serenity::ChannelId::new(thread_data.dm_channel_id);
 
+	let image_attachment = if let Context::Prefix(context) = context {
+		first_image_attachment(&context.msg.attachments)
+	} else {
+		None
+	};
+
+	let image_attachment_clone = if let Some(image_attachment) = image_attachment {
+		let mut forwarded_attachment =
+			serenity::CreateAttachment::url(&context.http(), &image_attachment.url).await?;
+		forwarded_attachment.filename = image_attachment.filename.clone();
+
+		Some(forwarded_attachment)
+	} else {
+		None
+	};
+
+	let image_filename = image_attachment
+		.as_ref()
+		.map(|attachment| attachment.filename.clone());
+
+	let forwarded_message_builder = serenity::CreateMessage::new().add_embed(make_message_embed(
+		context.serenity_context(),
+		&context.data().config,
+		&EmbedOptions {
+			user: context.author(),
+			content: message,
+			image_filename: image_filename.as_deref(),
+			outgoing: false,
+			anonymous,
+			user_info: false,
+		},
+	));
+
 	let forwarded_message = dm_channel
-		.send_message(
+		.send_files(
 			&context,
-			serenity::CreateMessage::new().add_embed(make_message_embed(
-				context.serenity_context(),
-				&context.data().config,
-				&EmbedOptions {
-					user: context.author(),
-					content: message,
-					outgoing: false,
-					anonymous,
-					details: false,
-				},
-			)),
+			image_attachment_clone.as_ref().map(|attachment| vec![attachment.clone()]).unwrap_or_default(),
+			forwarded_message_builder,
 		)
 		.await?;
 
-	let source_message = context
-		.send(poise::CreateReply::default().embed(make_message_embed(
-			context.serenity_context(),
-			&context.data().config,
-			&EmbedOptions {
-				user: context.author(),
-				content: message,
-				outgoing: true,
-				anonymous,
-				details: true,
-			},
-		)))
+	let mut source_message_builder = poise::CreateReply::default().embed(make_message_embed(
+		context.serenity_context(),
+		&context.data().config,
+		&EmbedOptions {
+			user: context.author(),
+			content: message,
+			image_filename: image_filename.as_deref(),
+			outgoing: true,
+			anonymous,
+			user_info: true,
+		},
+	));
+
+	if let Some(image_attachment_clone) = image_attachment_clone {
+		source_message_builder = source_message_builder.attachment(image_attachment_clone);
+	}
+
+	let source_message_handle = context
+		.send(source_message_builder)
 		.await?;
 
 	insert_sent_message(
 		&context.data().pg,
 		SentMessage {
-			id: source_message.message().await?.id.get(),
+			id: source_message_handle.message().await?.id.get(),
 			thread_id: context.channel_id().get(),
 			forwarded_message_id: forwarded_message.id.get(),
 			author_id: context.author().id.get(),
 			anonymous,
+			image_filename,
 		},
 	)
 	.await?;
