@@ -4,16 +4,11 @@ use crate::data::blocked_users::block_user;
 use crate::data::blocked_users::is_user_blocked;
 use crate::util::escape_markdown;
 
-use super::util::Context;
 use super::util::require_staff;
+use super::util::Context;
 
 /// Block a user from creating threads.
-#[poise::command(
-	slash_command,
-	prefix_command,
-	guild_only,
-	check = "require_staff"
-)]
+#[poise::command(slash_command, prefix_command, guild_only, check = "require_staff")]
 pub async fn block(
 	context: Context<'_>,
 	#[description = "The user to block."] user: serenity::User,
@@ -43,20 +38,30 @@ async fn block_impl(context: Context<'_>, user: serenity::User, silent: bool) ->
 	}
 
 	if is_user_blocked(&context.data().pg, user.id.get()).await? {
-		context.reply("❌ The specified user is already blocked.").await?;
+		context
+			.reply("❌ The specified user is already blocked.")
+			.await?;
 		return Ok(());
 	}
 
 	block_user(&context.data().pg, user.id.get()).await?;
 
 	if !silent {
-		user.direct_message(&context.http(), serenity::CreateMessage::new().content("🚫 You have been blocked from creating threads.".to_string())).await.ok();
+		user.direct_message(
+			&context.http(),
+			serenity::CreateMessage::new()
+				.content("🚫 You have been blocked from creating threads.".to_string()),
+		)
+		.await
+		.ok();
 	}
 
 	if context.author().id == user.id {
 		context.reply("✅ Why do this to yourself?").await?;
 	} else {
-		context.reply(format!("✅ Blocked **{}**!", escape_markdown(&user.tag()))).await?;
+		context
+			.reply(format!("✅ Blocked **{}**!", escape_markdown(&user.tag())))
+			.await?;
 	}
 
 	Ok(())

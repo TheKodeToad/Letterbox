@@ -12,14 +12,14 @@ use reply::reply;
 use unblock::silent_unblock;
 use unblock::unblock;
 
+mod block;
 mod close;
 mod contact;
 mod delete;
 mod edit;
 mod reply;
-mod util;
-mod block;
 mod unblock;
+mod util;
 
 pub fn commands() -> Vec<poise::Command<crate::Data, eyre::Error>> {
 	vec![

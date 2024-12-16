@@ -57,7 +57,7 @@ pub async fn edit(
 
 	let forwarded_message_builder = serenity::EditMessage::new().embed(make_message_embed(
 		context.serenity_context,
-		&context.data().config,
+		&context.data.config,
 		&EmbedOptions {
 			user: context.author(),
 			content: &content,
@@ -78,7 +78,7 @@ pub async fn edit(
 
 	let source_message_builder = serenity::EditMessage::new().embed(make_message_embed(
 		context.serenity_context,
-		&context.data().config,
+		&context.data.config,
 		&EmbedOptions {
 			user: context.author(),
 			content: &content,

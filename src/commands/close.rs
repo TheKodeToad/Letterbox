@@ -72,7 +72,10 @@ async fn close_impl(context: Context<'_>, silent: bool, anonymous: bool) -> eyre
 					.content(if anonymous {
 						format!("⛔ Thread closed.").to_string()
 					} else {
-						format!("⛔ Thread closed by **{}**.", escape_markdown(&context.author().display_name()))
+						format!(
+							"⛔ Thread closed by **{}**.",
+							escape_markdown(&context.author().display_name())
+						)
 					})
 					.allowed_mentions(serenity::CreateAllowedMentions::new()),
 			)
@@ -80,7 +83,12 @@ async fn close_impl(context: Context<'_>, silent: bool, anonymous: bool) -> eyre
 			.ok();
 	}
 
-	context.say(&format!("⛔ Thread closed by **{}**.", &context.author().mention())).await?;
+	context
+		.say(&format!(
+			"⛔ Thread closed by **{}**.",
+			&context.author().mention()
+		))
+		.await?;
 
 	if let Context::Prefix(prefix) = context {
 		prefix.msg.delete(context).await.ok();
@@ -92,22 +100,20 @@ async fn close_impl(context: Context<'_>, silent: bool, anonymous: bool) -> eyre
 		return Err(eyre!("Channel is not guild channel!"));
 	};
 
-	let info_builder = serenity::EditMessage::new().content(make_info_content(
-		&context.data().config,
-		serenity::UserId::new(thread_data.user_id),
-		serenity::UserId::new(thread_data.opened_by_id),
-		thread_data.created_at.into(),
-		Some(context.author().id),
-		Some(context.created_at()),
-	));
+	let info_builder = serenity::EditMessage::new()
+		.content(make_info_content(
+			&context.data().config,
+			serenity::UserId::new(thread_data.user_id),
+			serenity::UserId::new(thread_data.opened_by_id),
+			thread_data.created_at.into(),
+			Some(context.author().id),
+			Some(context.created_at()),
+		))
+		.allowed_mentions(context.data().config.allowed_mentions());
 
 	thread
-	.edit_message(
-		&context.http(),
-		thread.id.get(),
-		info_builder,
-	)
-	.await?;
+		.edit_message(&context.http(), thread.id.get(), info_builder)
+		.await?;
 
 	let mut edit_thread_builder = serenity::EditThread::new().locked(true).archived(true);
 

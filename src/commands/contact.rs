@@ -8,12 +8,7 @@ use crate::{
 use super::util::{require_staff, Context};
 
 /// Create a new mod-mail thread.
-#[poise::command(
-	slash_command,
-	prefix_command,
-	guild_only,
-	check = "require_staff"
-)]
+#[poise::command(slash_command, prefix_command, guild_only, check = "require_staff")]
 pub async fn contact(
 	context: Context<'_>,
 	#[description = "The user to open a thread for."] user: serenity::User,

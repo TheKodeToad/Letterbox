@@ -3,15 +3,13 @@ use poise::serenity_prelude::{self as serenity, CreateAttachment};
 pub fn first_image_attachment(
 	attachments: &[serenity::Attachment],
 ) -> Option<&serenity::Attachment> {
-	attachments
-		.iter()
-		.find(|attachment| {
-			attachment
-				.content_type
-				.as_ref()
-				.map(|content_type| content_type.starts_with("image/"))
-				.unwrap_or_default()
-		})
+	attachments.iter().find(|attachment| {
+		attachment
+			.content_type
+			.as_ref()
+			.map(|content_type| content_type.starts_with("image/"))
+			.unwrap_or_default()
+	})
 }
 
 /// Clone an attachment by reuploading it.
@@ -31,7 +29,8 @@ pub fn get_json_error_code(error: &serenity::Error) -> Option<isize> {
 			error: serenity::DiscordJsonError { code, .. },
 			..
 		},
-	)) = error {
+	)) = error
+	{
 		Some(*code)
 	} else {
 		None

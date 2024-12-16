@@ -34,15 +34,26 @@ pub async fn delete(context: PrefixContext<'_>) -> eyre::Result<()> {
 	Ok(())
 }
 
-#[poise::command(context_menu_command = "🗑️ Delete Reply", guild_only, check = "require_staff", ephemeral)]
-pub async fn delete_context_menu(context: Context<'_>, message: serenity::Message) -> eyre::Result<()> {
+#[poise::command(
+	context_menu_command = "🗑️ Delete Reply",
+	guild_only,
+	check = "require_staff",
+	ephemeral
+)]
+pub async fn delete_context_menu(
+	context: Context<'_>,
+	message: serenity::Message,
+) -> eyre::Result<()> {
 	delete_impl(&context, message.id).await?;
 	context.say("✅ Deleted reply.").await?;
 
 	Ok(())
 }
 
-pub async fn delete_impl(context: &Context<'_>, message_id: serenity::MessageId) -> eyre::Result<()> {
+pub async fn delete_impl(
+	context: &Context<'_>,
+	message_id: serenity::MessageId,
+) -> eyre::Result<()> {
 	let Some(sent_message) = get_sent_message(&context.data().pg, message_id.get()).await? else {
 		context
 			.say("❌ This message was not sent with the reply command or the thread was closed.")
