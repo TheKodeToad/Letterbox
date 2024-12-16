@@ -3,6 +3,7 @@ use poise::serenity_prelude as serenity;
 use crate::data::blocked_users::block_user;
 use crate::data::blocked_users::is_user_blocked;
 use crate::data::blocked_users::unblock_user;
+use crate::util::escape_markdown;
 
 use super::util::Context;
 use super::util::require_staff;
@@ -53,7 +54,7 @@ async fn unblock_impl(context: Context<'_>, user: serenity::User, silent: bool) 
 		user.direct_message(&context.http(), serenity::CreateMessage::new().content("🔓 You have been unblocked.".to_string())).await.ok();
 	}
 
-	context.reply(format!("✅ Unblocked **{}**!", user.tag().replace("_", "\\_"))).await?;
+	context.reply(format!("✅ Unblocked **{}**!", escape_markdown(&user.tag()))).await?;
 
 	Ok(())
 }

@@ -7,6 +7,7 @@ use super::util::Context;
 use crate::data::threads::delete_thread;
 use crate::data::threads::get_thread;
 use crate::formatting::make_info_content;
+use crate::util::escape_markdown;
 
 /// Close a mod-mail thread.
 #[poise::command(
@@ -63,8 +64,6 @@ async fn close_impl(context: Context<'_>, silent: bool, anonymous: bool) -> eyre
 
 	delete_thread(&context.data().pg, context.channel_id().get()).await?;
 
-	let close_message = format!("⛔ Thread closed by {}.", context.author().mention());
-
 	if !silent {
 		dm_channel
 			.send_message(
@@ -73,7 +72,7 @@ async fn close_impl(context: Context<'_>, silent: bool, anonymous: bool) -> eyre
 					.content(if anonymous {
 						format!("⛔ Thread closed.").to_string()
 					} else {
-						close_message.to_string()
+						format!("⛔ Thread closed by **{}**.", escape_markdown(&context.author().display_name()))
 					})
 					.allowed_mentions(serenity::CreateAllowedMentions::new()),
 			)
@@ -81,7 +80,7 @@ async fn close_impl(context: Context<'_>, silent: bool, anonymous: bool) -> eyre
 			.ok();
 	}
 
-	context.say(&close_message).await?;
+	context.say(&format!("⛔ Thread closed by **{}**.", &context.author().mention())).await?;
 
 	if let Context::Prefix(prefix) = context {
 		prefix.msg.delete(context).await.ok();

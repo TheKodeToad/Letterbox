@@ -2,6 +2,7 @@ use poise::serenity_prelude as serenity;
 
 use crate::data::blocked_users::block_user;
 use crate::data::blocked_users::is_user_blocked;
+use crate::util::escape_markdown;
 
 use super::util::Context;
 use super::util::require_staff;
@@ -55,7 +56,7 @@ async fn block_impl(context: Context<'_>, user: serenity::User, silent: bool) ->
 	if context.author().id == user.id {
 		context.reply("✅ Why do this to yourself?").await?;
 	} else {
-		context.reply(format!("✅ Blocked **{}**!", user.tag().replace("_", "\\_"))).await?;
+		context.reply(format!("✅ Blocked **{}**!", escape_markdown(&user.tag()))).await?;
 	}
 
 	Ok(())
