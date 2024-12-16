@@ -149,7 +149,7 @@ async fn create_thread_from(
 			None,
 			None,
 		))
-		.allowed_mentions(data.config.allowed_mentions())
+		.allowed_mentions(data.config.forum_channel.allowed_mentions())
 		.embed(make_info_embed(context, &data.config, &message.author).await?);
 	let mut forum_post_builder = serenity::CreateForumPost::new(
 		format!("Thread from {}", &message.author.tag()),

@@ -53,7 +53,7 @@ pub async fn contact(
 			None,
 			None,
 		))
-		.allowed_mentions(context.data().config.allowed_mentions())
+		.allowed_mentions(context.data().config.forum_channel.allowed_mentions())
 		.embed(make_info_embed(context.serenity_context(), &context.data().config, &user).await?);
 
 	let mut forum_post_builder =

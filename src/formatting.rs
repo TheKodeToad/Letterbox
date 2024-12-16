@@ -136,7 +136,7 @@ pub fn make_info_content(
 
 	let mut result = String::new();
 
-	if let Some(role) = config.mention_role {
+	if let Some(role) = config.forum_channel.mention_role_id {
 		result += &role.mention().to_string();
 		result += "\n\n";
 	}

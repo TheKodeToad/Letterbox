@@ -109,7 +109,7 @@ async fn close_impl(context: Context<'_>, silent: bool, anonymous: bool) -> eyre
 			Some(context.author().id),
 			Some(context.created_at()),
 		))
-		.allowed_mentions(context.data().config.allowed_mentions());
+		.allowed_mentions(context.data().config.forum_channel.allowed_mentions());
 
 	thread
 		.edit_message(&context.http(), thread.id.get(), info_builder)
