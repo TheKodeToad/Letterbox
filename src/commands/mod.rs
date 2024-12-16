@@ -5,6 +5,7 @@ use close::close;
 use close::silent_close;
 use contact::contact;
 use delete::delete;
+use delete::delete_context_menu;
 use edit::edit;
 use reply::anon_reply;
 use reply::reply;
@@ -25,6 +26,7 @@ pub fn commands() -> Vec<poise::Command<crate::Data, eyre::Error>> {
 		reply(),
 		anon_reply(),
 		delete(),
+		delete_context_menu(),
 		edit(),
 		close(),
 		anon_close(),
