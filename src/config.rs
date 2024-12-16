@@ -8,7 +8,7 @@ pub struct Config {
 	pub staff_roles: HashSet<serenity::RoleId>,
 	#[serde(default = "prefix_default" /* = */)]
 	pub prefix: String,
-	#[serde(default = "status_default" /* Message me to contact mods! */)]
+	#[serde(default = "status_default" /* Message me to contact staff! */)]
 	pub status: String,
 	#[serde(default = "anonymous_display_name") /* Staff Member */]
 	pub anonymous_display_name: String,
@@ -55,7 +55,7 @@ fn prefix_default() -> String {
 }
 
 fn status_default() -> String {
-	"Message me to contact mods!".to_string()
+	"Message me to contact staff!".to_string()
 }
 
 fn anonymous_display_name() -> String {
