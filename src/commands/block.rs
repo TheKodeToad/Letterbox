@@ -33,13 +33,13 @@ pub async fn silent_block(
 
 async fn block_impl(context: Context<'_>, user: serenity::User, silent: bool) -> eyre::Result<()> {
 	if user.bot {
-		context.reply("❌ Blocking an app has no effect.").await?;
+		context.send(poise::CreateReply::default().content("❌ Blocks upon an app have no effect.").ephemeral(true)).await?;
 		return Ok(());
 	}
 
 	if is_user_blocked(&context.data().pg, user.id.get()).await? {
 		context
-			.reply("❌ The specified user is already blocked.")
+			.send(poise::CreateReply::default().content("❌ The specified user is already blocked.").ephemeral(true))
 			.await?;
 		return Ok(());
 	}
@@ -47,6 +47,8 @@ async fn block_impl(context: Context<'_>, user: serenity::User, silent: bool) ->
 	block_user(&context.data().pg, user.id.get()).await?;
 
 	if !silent {
+		context.defer().await?;
+
 		user.direct_message(
 			&context.http(),
 			serenity::CreateMessage::new()
