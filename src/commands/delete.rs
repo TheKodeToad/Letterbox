@@ -29,7 +29,7 @@ pub async fn delete(context: PrefixContext<'_>) -> eyre::Result<()> {
 	};
 
 	if delete_impl(&Context::Prefix(context), message_id).await? {
-		context.msg.delete(context.http()).await?;
+		context.msg.delete(context.http()).await.ok();
 	}
 
 	Ok(())

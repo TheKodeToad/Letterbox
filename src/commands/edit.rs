@@ -1,13 +1,23 @@
 use eyre::OptionExt;
-use poise::serenity_prelude as serenity;
+use poise::{
+	serenity_prelude::{self as serenity}, Modal, Prefix
+};
 
 use crate::{
 	data::{sent_messages::get_sent_message, threads::get_thread},
 	formatting::{make_message_embed, EmbedOptions},
 };
 
-use super::util::require_staff;
+use super::util::{require_staff, ApplicationContext, Context};
 use super::util::PrefixContext;
+
+#[derive(poise::Modal)]
+#[name = "Edit Message"]
+struct EditDialog {
+	#[name = "Content"]
+	#[placeholder = "The new message content"]
+	content: String,
+}
 
 /// Edit a mod-mail reply.
 #[poise::command(
@@ -33,21 +43,50 @@ pub async fn edit(
 		return Ok(());
 	};
 
-	let Some(sent_message) = get_sent_message(&context.data.pg, message_id.get()).await? else {
+	if edit_impl(Context::Prefix(context), message_id, content).await? {
+		context.msg.delete(context.http()).await?;
+	}
+
+	Ok(())
+}
+
+#[poise::command(
+	context_menu_command = "✏ Edit Reply",
+	guild_only,
+	check = "require_staff",
+	ephemeral,
+)]
+pub async fn edit_context_menu(
+	context: ApplicationContext<'_>,
+	message: serenity::Message,
+) -> eyre::Result<()> {
+	let Some(fields) = EditDialog::execute(context).await? else { return Ok(()); };
+
+	edit_impl(Context::Application(context), message.id, fields.content).await?;
+
+	Ok(())
+}
+
+pub async fn edit_impl(
+	context: Context<'_>,
+	message_id: serenity::MessageId,
+	content: String,
+) -> eyre::Result<bool> {
+	let Some(sent_message) = get_sent_message(&context.data().pg, message_id.get()).await? else {
 		context
 			.say("❌ This message was not sent with the reply command or the thread was closed.")
 			.await?;
-		return Ok(());
+		return Ok(false);
 	};
 
 	if sent_message.author_id != context.author().id.get() {
 		context
 			.say("❌ This reply was not authored by you.")
 			.await?;
-		return Ok(());
+		return Ok(false);
 	}
 
-	let dm_channel_id = get_thread(&context.data.pg, sent_message.thread_id)
+	let dm_channel_id = get_thread(&context.data().pg, sent_message.thread_id)
 		.await?
 		.ok_or_eyre("Thread went missing!")?
 		.dm_channel_id;
@@ -56,8 +95,8 @@ pub async fn edit(
 	let thread = serenity::ChannelId::new(sent_message.thread_id);
 
 	let forwarded_message_builder = serenity::EditMessage::new().embed(make_message_embed(
-		context.serenity_context,
-		&context.data.config,
+		context.serenity_context(),
+		&context.data().config,
 		&EmbedOptions {
 			user: context.author(),
 			content: &content,
@@ -77,8 +116,8 @@ pub async fn edit(
 		.await?;
 
 	let source_message_builder = serenity::EditMessage::new().embed(make_message_embed(
-		context.serenity_context,
-		&context.data.config,
+		context.serenity_context(),
+		&context.data().config,
 		&EmbedOptions {
 			user: context.author(),
 			content: &content,
@@ -93,7 +132,5 @@ pub async fn edit(
 		.edit_message(&context.http(), message_id, source_message_builder)
 		.await?;
 
-	context.msg.delete(&context.http()).await?;
-
-	Ok(())
+	Ok(true)
 }

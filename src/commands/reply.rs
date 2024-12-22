@@ -136,7 +136,7 @@ pub async fn reply_impl(context: Context<'_>, message: &str, anonymous: bool) ->
 	.await?;
 
 	if let poise::Context::Prefix(prefix) = context {
-		prefix.msg.delete(&context.http()).await?;
+		prefix.msg.delete(&context.http()).await.ok();
 	}
 
 	Ok(())
