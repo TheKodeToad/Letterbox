@@ -175,5 +175,21 @@ async fn create_thread_from(
 		},
 	)
 	.await?;
+
+	let mut thread_open_message = "🧵 Started a new thread.".to_string();
+
+	if let Some(suffix) = &data.config.messages.thread_open {
+		thread_open_message.push('\n');
+		thread_open_message += &suffix;
+	}
+
+	message
+		.channel_id
+		.send_message(
+			&context.http,
+			serenity::CreateMessage::new().content(thread_open_message),
+		)
+		.await?;
+
 	Ok(forum_post.id)
 }

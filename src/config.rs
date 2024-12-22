@@ -9,6 +9,7 @@ pub struct Config {
 	#[serde(default = "prefix_default" /* = */)]
 	pub prefix: String,
 	pub forum_channel: ForumChannelConfig,
+	#[serde(default)]
 	pub messages: MessageConfig,
 }
 
@@ -21,9 +22,12 @@ pub struct ForumChannelConfig {
 }
 
 #[derive(serde::Serialize, serde::Deserialize)]
+#[serde(default)]
 pub struct MessageConfig {
 	pub status: String,
 	pub anonymous_reply_title: String,
+	pub thread_open: Option<String>,
+	pub thread_closed: Option<String>,
 }
 
 impl Config {
@@ -34,6 +38,12 @@ impl Config {
 
 	pub fn is_staff(&self, roles: &[serenity::RoleId]) -> bool {
 		roles.iter().any(|role| self.staff_roles.contains(role))
+	}
+}
+
+impl Default for MessageConfig {
+	fn default() -> Self {
+		Self { status: "Message me to contact staff!".to_string(), anonymous_reply_title: "Staff Member".to_string(), thread_open: None, thread_closed: None }
 	}
 }
 
@@ -55,12 +65,4 @@ fn staff_roles_default() -> HashSet<serenity::RoleId> {
 
 fn prefix_default() -> String {
 	"=".to_string()
-}
-
-fn status_default() -> String {
-	"Message me to contact staff!".to_string()
-}
-
-fn anonymous_display_name() -> String {
-	"Staff Member".to_string()
 }

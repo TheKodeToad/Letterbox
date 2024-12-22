@@ -64,19 +64,24 @@ async fn close_impl(context: Context<'_>, silent: bool, anonymous: bool) -> eyre
 
 	delete_thread(&context.data().pg, context.channel_id().get()).await?;
 
+	let mut dm_channel_notification = if anonymous {
+		format!("⛔ Thread closed.").to_string()
+	} else {
+		format!(
+			"⛔ Thread closed by **{}**.",
+			escape_markdown(&context.author().display_name())
+		)
+	};
+	if let Some(suffix) = &context.data().config.messages.thread_closed {
+		dm_channel_notification.push('\n');
+		dm_channel_notification += &suffix;
+	}
 	if !silent {
 		dm_channel
 			.send_message(
 				&context.http(),
 				serenity::CreateMessage::new()
-					.content(if anonymous {
-						format!("⛔ Thread closed.").to_string()
-					} else {
-						format!(
-							"⛔ Thread closed by **{}**.",
-							escape_markdown(&context.author().display_name())
-						)
-					})
+					.content(dm_channel_notification)
 					.allowed_mentions(serenity::CreateAllowedMentions::new()),
 			)
 			.await
@@ -84,7 +89,7 @@ async fn close_impl(context: Context<'_>, silent: bool, anonymous: bool) -> eyre
 	}
 
 	context
-		.say(&format!(
+		.say(format!(
 			"⛔ Thread closed by **{}**.",
 			&context.author().mention()
 		))

@@ -1,29 +1,36 @@
 # IDs can copied by enabling Developer Mode in User Settings => Advanced.
 
 # Commands will be limited to this server and its icon will be used for anonymous replies - required.
-server_id = "insert id"
+server_id = 00000000000000000
 
 # Commands will only be useable by IDs here - required to use the app in any meaningful way.
-staff_roles = ["insert id"]
+staff_roles = [00000000000000000]
 
 # The prefix to use for commands - defaults to "=". Slash commands are also available.
 # prefix = "!"
 
+[forum_channel]
+# Threads will be created in this channel - required.
+id = 00000000000000000
+
+# This tag will be attached to open threads - optional.
+# open_tag_id = 00000000000000000
+
+# This tag will be attached to closed threads - optional.
+# closed_tag_id = 00000000000000000
+
+# This role will be mentioned in new threads - optional.
+# mention_role_id = 00000000000000000
+
+[messages]
 # The status message to use - defaults to "Message me to contact staff!"
 # status = "Message me to contact mods!"
 
 # The title to display above anonymous replies - defaults to "Staff Member".
 # anonymous_display_name = "Moderator Response"
 
-[forum_channel]
-# Threads will be created in this channel - required.
-id = "insert id"
+# An additional message to display when a thread is opened - optional.
+# thread_open = "The staff team will get back to you when possible."
 
-# This tag will be attached to open threads - optional.
-# open_tag_id = "insert id"
-
-# This tag will be attached to closed threads - optional.
-# closed_tag_id = "insert id"
-
-# This role will be mentioned in new threads - optional.
-# mention_role_id = "insert id"
+# An additional message to display when a thread is closed - optional.
+# thread_closed = "Sending another message will open a new thread."
