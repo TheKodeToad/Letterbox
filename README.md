@@ -6,10 +6,6 @@ Advanced features like a web panel are not the goal here, nor is making the conf
 
 Only posting to a forum will ever be supported - hidden channel viewers exist but hidden thread viewers do not, and text channels need to be deleted when a thread is closed otherwise there will be a lot of clutter and the 500 channel limit could easily be reached on a large server.
 
-Some good features to include in the future could be:
-- Requiring confirmation before threads are created.
-- Supporting multiple different roles (not just Staff) which can have different names which appear in embeds and more specific permissions.
-
 ## Features
 - Users can DM the bot to create a thread.
 - More messages will add to the thread.
