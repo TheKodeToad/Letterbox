@@ -28,14 +28,15 @@ pub async fn delete(context: PrefixContext<'_>) -> eyre::Result<()> {
 		return Ok(());
 	};
 
-	delete_impl(&Context::Prefix(context), message_id).await?;
-	context.msg.delete(context.http()).await?;
+	if delete_impl(&Context::Prefix(context), message_id).await? {
+		context.msg.delete(context.http()).await?;
+	}
 
 	Ok(())
 }
 
 #[poise::command(
-	context_menu_command = "🗑️ Delete Reply",
+	context_menu_command = "🗑 Delete Reply",
 	guild_only,
 	check = "require_staff",
 	ephemeral
@@ -44,8 +45,9 @@ pub async fn delete_context_menu(
 	context: Context<'_>,
 	message: serenity::Message,
 ) -> eyre::Result<()> {
-	delete_impl(&context, message.id).await?;
-	context.say("✅ Deleted reply.").await?;
+	if delete_impl(&context, message.id).await? {
+		context.say("✅ Deleted reply.").await?;
+	}
 
 	Ok(())
 }
@@ -53,12 +55,12 @@ pub async fn delete_context_menu(
 pub async fn delete_impl(
 	context: &Context<'_>,
 	message_id: serenity::MessageId,
-) -> eyre::Result<()> {
+) -> eyre::Result<bool> {
 	let Some(sent_message) = get_sent_message(&context.data().pg, message_id.get()).await? else {
 		context
 			.say("❌ This message was not sent with the reply command or the thread was closed.")
 			.await?;
-		return Ok(());
+		return Ok(false);
 	};
 
 	let dm_channel_id = get_thread(&context.data().pg, sent_message.thread_id)
@@ -79,5 +81,5 @@ pub async fn delete_impl(
 		.await?;
 	delete_sent_message(&context.data().pg, sent_message.id).await?;
 
-	Ok(())
+	Ok(true)
 }
