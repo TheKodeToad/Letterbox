@@ -8,11 +8,8 @@ pub struct Config {
 	pub staff_roles: HashSet<serenity::RoleId>,
 	#[serde(default = "prefix_default" /* = */)]
 	pub prefix: String,
-	#[serde(default = "status_default" /* Message me to contact staff! */)]
-	pub status: String,
-	#[serde(default = "anonymous_display_name") /* Staff Member */]
-	pub anonymous_display_name: String,
 	pub forum_channel: ForumChannelConfig,
+	pub messages: MessageConfig,
 }
 
 #[derive(serde::Serialize, serde::Deserialize)]
@@ -21,6 +18,12 @@ pub struct ForumChannelConfig {
 	pub open_tag_id: Option<serenity::ForumTagId>,
 	pub closed_tag_id: Option<serenity::ForumTagId>,
 	pub mention_role_id: Option<serenity::RoleId>,
+}
+
+#[derive(serde::Serialize, serde::Deserialize)]
+pub struct MessageConfig {
+	pub status: String,
+	pub anonymous_reply_title: String,
 }
 
 impl Config {

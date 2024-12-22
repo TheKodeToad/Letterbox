@@ -69,9 +69,10 @@ async fn setup(
 	let postgres_config = std::env::var("POSTGRES_CONNECTION")?;
 
 	let config = Config::new_from_file(Path::new("config.toml"))?;
+
 	context
 		.shard
-		.set_activity(Some(serenity::ActivityData::custom(&config.status)));
+		.set_activity(Some(serenity::ActivityData::custom(&config.messages.status)));
 
 	let (mut pg_client, connection) =
 		tokio_postgres::connect(&postgres_config, tokio_postgres::NoTls).await?;

@@ -26,7 +26,7 @@ pub fn make_message_embed(
 
 	if options.anonymous {
 		result = result.author(
-			serenity::CreateEmbedAuthor::new(&config.anonymous_display_name).icon_url(
+			serenity::CreateEmbedAuthor::new(&config.messages.anonymous_reply_title).icon_url(
 				config
 					.server_id
 					.to_guild_cached(&context.cache)
