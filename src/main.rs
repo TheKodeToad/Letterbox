@@ -49,7 +49,7 @@ async fn main() -> eyre::Result<()> {
 		.build();
 
 	let intents =
-		serenity::GatewayIntents::non_privileged() | serenity::GatewayIntents::MESSAGE_CONTENT;
+		serenity::GatewayIntents::non_privileged() | serenity::GatewayIntents::MESSAGE_CONTENT | serenity::GatewayIntents::GUILD_MEMBERS;
 
 	let mut client = serenity::ClientBuilder::new(bot_token, intents)
 		.framework(framework)

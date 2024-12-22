@@ -4,6 +4,8 @@ mod thread_create_warning;
 mod thread_delete;
 mod incoming_reaction_add;
 mod incoming_reaction_delete;
+mod thread_member_leave;
+mod thread_member_join;
 
 use incoming_edit::handle_incoming_edit;
 use incoming_message::handle_incoming_message;
@@ -12,6 +14,8 @@ use incoming_reaction_delete::handle_incoming_reaction_remove;
 use poise::serenity_prelude as serenity;
 use thread_create_warning::handle_thread_create_warning;
 use thread_delete::handle_thread_delete;
+use thread_member_join::handle_thread_user_join;
+use thread_member_leave::handle_thread_user_leave;
 
 use crate::Data;
 
@@ -36,6 +40,12 @@ pub async fn handle_event(
 		}
 		serenity::FullEvent::ThreadDelete { thread, .. } => {
 			handle_thread_delete(thread, data).await?;
+		}
+		serenity::FullEvent::GuildMemberAddition { new_member, .. } => {
+			handle_thread_user_join(context, new_member, data).await?;
+		}
+		serenity::FullEvent::GuildMemberRemoval { guild_id, user, .. } => {
+			handle_thread_user_leave(context, *guild_id, user, data).await?;
 		}
 		_ => (),
 	};
