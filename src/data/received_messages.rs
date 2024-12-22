@@ -5,6 +5,22 @@ pub struct ReceivedMessage {
 	pub image_filename: Option<String>,
 }
 
+impl ReceivedMessage {
+	fn from_row(row: &tokio_postgres::Row) -> Self {
+		let id: i64 = row.get("id");
+		let thread_id: i64 = row.get("thread_id");
+		let fowarded_message_id: i64 = row.get("forwarded_message_id");
+		let image_filename: Option<String> = row.get("image_filename");
+
+		ReceivedMessage {
+			id: id as u64,
+			thread_id: thread_id as u64,
+			forwarded_message_id: fowarded_message_id as u64,
+			image_filename,
+		}
+	}
+}
+
 pub async fn get_received_message(
 	pg: &tokio_postgres::Client,
 	id: u64,
@@ -25,19 +41,7 @@ pub async fn get_received_message(
 	if rows.is_empty() {
 		Ok(None)
 	} else {
-		let row = &rows[0];
-
-		let id: i64 = row.get("id");
-		let thread_id: i64 = row.get("thread_id");
-		let fowarded_message_id: i64 = row.get("forwarded_message_id");
-		let image_filename: Option<String> = row.get("image_filename");
-
-		Ok(Some(ReceivedMessage {
-			id: id as u64,
-			thread_id: thread_id as u64,
-			forwarded_message_id: fowarded_message_id as u64,
-			image_filename,
-		}))
+		Ok(Some(ReceivedMessage::from_row(&rows[0])))
 	}
 }
 

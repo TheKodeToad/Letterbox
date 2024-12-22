@@ -1,5 +1,3 @@
-use tokio_postgres::Row;
-
 pub struct Thread {
 	pub id: u64,
 	pub dm_channel_id: u64,
@@ -9,7 +7,7 @@ pub struct Thread {
 }
 
 impl Thread {
-	fn from_row(row: &Row) -> Thread {
+	fn from_row(row: &tokio_postgres::Row) -> Self {
 		let id: i64 = row.get("id");
 		let dm_channel_id: i64 = row.get("dm_channel_id");
 		let user_id: i64 = row.get("user_id");

@@ -72,7 +72,9 @@ async fn setup(
 
 	context
 		.shard
-		.set_activity(Some(serenity::ActivityData::custom(&config.messages.status)));
+		.set_activity(Some(serenity::ActivityData::custom(
+			&config.messages.status,
+		)));
 
 	let (mut pg_client, connection) =
 		tokio_postgres::connect(&postgres_config, tokio_postgres::NoTls).await?;

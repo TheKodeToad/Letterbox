@@ -1,6 +1,7 @@
 use eyre::OptionExt;
 use poise::{
-	serenity_prelude::{self as serenity}, Modal, Prefix
+	serenity_prelude::{self as serenity},
+	Modal, Prefix,
 };
 
 use crate::{
@@ -8,8 +9,8 @@ use crate::{
 	formatting::{make_message_embed, EmbedOptions},
 };
 
-use super::util::{require_staff, ApplicationContext, Context};
 use super::util::PrefixContext;
+use super::util::{require_staff, ApplicationContext, Context};
 
 #[derive(poise::Modal)]
 #[name = "Edit Message"]
@@ -54,13 +55,15 @@ pub async fn edit(
 	context_menu_command = "✏ Edit Reply",
 	guild_only,
 	check = "require_staff",
-	ephemeral,
+	ephemeral
 )]
 pub async fn edit_context_menu(
 	context: ApplicationContext<'_>,
 	message: serenity::Message,
 ) -> eyre::Result<()> {
-	let Some(fields) = EditDialog::execute(context).await? else { return Ok(()); };
+	let Some(fields) = EditDialog::execute(context).await? else {
+		return Ok(());
+	};
 
 	edit_impl(Context::Application(context), message.id, fields.content).await?;
 

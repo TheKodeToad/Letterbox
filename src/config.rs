@@ -43,7 +43,12 @@ impl Config {
 
 impl Default for MessageConfig {
 	fn default() -> Self {
-		Self { status: "Message me to contact staff!".to_string(), anonymous_reply_title: "Staff Member".to_string(), thread_open: None, thread_closed: None }
+		Self {
+			status: "Message me to contact staff!".to_string(),
+			anonymous_reply_title: "Staff Member".to_string(),
+			thread_open: None,
+			thread_closed: None,
+		}
 	}
 }
 
