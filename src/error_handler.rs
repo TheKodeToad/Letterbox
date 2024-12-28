@@ -53,6 +53,7 @@ pub async fn handle_error(error: poise::FrameworkError<'_, Data, eyre::Report>) 
 				event.snake_case_name()
 			);
 		}
+		poise::FrameworkError::GuildOnly { .. } => {}
 		_ => {
 			if let Err(error) = poise::builtins::on_error(error).await {
 				log::error!("Unhandled error in Poise's built in error handler:\n{error:?}");
