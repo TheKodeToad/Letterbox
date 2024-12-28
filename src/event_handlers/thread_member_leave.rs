@@ -2,7 +2,12 @@ use poise::serenity_prelude as serenity;
 
 use crate::{data::threads::get_thread_by_user, Data};
 
-pub async fn handle_thread_user_leave(context: &serenity::Context, guild_id: serenity::GuildId, user: &serenity::User, data: &Data) -> eyre::Result<()> {
+pub async fn handle_thread_user_leave(
+	context: &serenity::Context,
+	guild_id: serenity::GuildId,
+	user: &serenity::User,
+	data: &Data,
+) -> eyre::Result<()> {
 	if guild_id != data.config.server_id {
 		return Ok(());
 	}
@@ -13,7 +18,12 @@ pub async fn handle_thread_user_leave(context: &serenity::Context, guild_id: ser
 
 	let thread = serenity::ChannelId::new(thread_data.id);
 
-	thread.send_message(&context.http, serenity::CreateMessage::new().content("📤 The user has left the server.")).await?;
+	thread
+		.send_message(
+			&context.http,
+			serenity::CreateMessage::new().content("📤 The user has left the server."),
+		)
+		.await?;
 
 	Ok(())
 }

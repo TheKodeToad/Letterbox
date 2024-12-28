@@ -112,9 +112,12 @@ async fn close_impl(context: Context<'_>, silent: bool, anonymous: bool) -> eyre
 			&context.data().config,
 			ThreadInfoOptions {
 				user_id: serenity::UserId::new(thread_data.user_id),
-				opened: (serenity::UserId::new(thread_data.opened_by_id), thread_data.created_at.into()),
+				opened: (
+					serenity::UserId::new(thread_data.opened_by_id),
+					thread_data.created_at.into(),
+				),
 				closed: Some((context.author().id, context.created_at())),
-			}
+			},
 		))
 		.allowed_mentions(make_thread_info_allowed_mentions(&context.data().config));
 

@@ -37,13 +37,23 @@ async fn unblock_impl(
 	silent: bool,
 ) -> eyre::Result<()> {
 	if user.bot {
-		context.send(poise::CreateReply::default().content("❌ Blocks upon an app have no effect.").ephemeral(true)).await?;
+		context
+			.send(
+				poise::CreateReply::default()
+					.content("❌ Blocks upon an app have no effect.")
+					.ephemeral(true),
+			)
+			.await?;
 		return Ok(());
 	}
 
 	if !is_user_blocked(&context.data().pg, user.id.get()).await? {
 		context
-			.send(poise::CreateReply::default().content("❌ The specified user is not blocked.").ephemeral(true))
+			.send(
+				poise::CreateReply::default()
+					.content("❌ The specified user is not blocked.")
+					.ephemeral(true),
+			)
 			.await?;
 		return Ok(());
 	}

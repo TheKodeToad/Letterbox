@@ -1,7 +1,9 @@
 use poise::serenity_prelude as serenity;
 
 use crate::{
-	data::received_messages::get_received_message, formatting::message_embed::{make_message_embed, MessageEmbedOptions}, Data
+	data::received_messages::get_received_message,
+	formatting::message_embed::{make_message_embed, MessageEmbedOptions},
+	Data,
 };
 
 pub async fn handle_incoming_edit(

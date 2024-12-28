@@ -1,11 +1,11 @@
 mod incoming_edit;
 mod incoming_message;
-mod thread_create_warning;
-mod thread_delete;
 mod incoming_reaction_add;
 mod incoming_reaction_delete;
-mod thread_member_leave;
+mod thread_create_warning;
+mod thread_delete;
 mod thread_member_join;
+mod thread_member_leave;
 
 use incoming_edit::handle_incoming_edit;
 use incoming_message::handle_incoming_message;

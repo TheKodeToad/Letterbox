@@ -59,4 +59,3 @@ pub fn make_message_embed(
 
 	result
 }
-

@@ -52,7 +52,8 @@ pub fn make_thread_info(config: &Config, options: ThreadInfoOptions) -> String {
 			"⛔ Thread closed by {} {}",
 			serenity::Mention::User(closed_by.0),
 			closed_discord_timestamp
-		).unwrap();
+		)
+		.unwrap();
 	}
 
 	result

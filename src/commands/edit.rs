@@ -5,7 +5,8 @@ use poise::{
 };
 
 use crate::{
-	data::{sent_messages::get_sent_message, threads::get_thread}, formatting::message_embed::{make_message_embed, MessageEmbedOptions},
+	data::{sent_messages::get_sent_message, threads::get_thread},
+	formatting::message_embed::{make_message_embed, MessageEmbedOptions},
 };
 
 use super::util::PrefixContext;
