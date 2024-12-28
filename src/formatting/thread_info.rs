@@ -57,3 +57,11 @@ pub fn make_thread_info(config: &Config, options: ThreadInfoOptions) -> String {
 
 	result
 }
+
+pub fn make_thread_info_allowed_mentions(config: &Config) -> serenity::CreateAllowedMentions {
+	if let Some(role) = config.forum_channel.mention_role_id {
+		serenity::CreateAllowedMentions::new().roles([role])
+	} else {
+		serenity::CreateAllowedMentions::new()
+	}
+}

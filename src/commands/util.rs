@@ -9,5 +9,5 @@ pub async fn require_staff(context: Context<'_>) -> eyre::Result<bool> {
 		return Ok(false);
 	};
 
-	Ok(context.data().config.is_staff(&member.roles))
+	Ok(context.data().config.staff_roles.iter().any(|role| member.roles.contains(role)))
 }

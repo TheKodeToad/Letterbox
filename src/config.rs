@@ -35,10 +35,6 @@ impl Config {
 		let data = fs::read_to_string(path)?;
 		Ok(toml::from_str(&data)?)
 	}
-
-	pub fn is_staff(&self, roles: &[serenity::RoleId]) -> bool {
-		roles.iter().any(|role| self.staff_roles.contains(role))
-	}
 }
 
 impl Default for MessageConfig {
@@ -48,16 +44,6 @@ impl Default for MessageConfig {
 			anonymous_reply_title: "Staff Member".to_string(),
 			thread_open: None,
 			thread_closed: None,
-		}
-	}
-}
-
-impl ForumChannelConfig {
-	pub fn allowed_mentions(&self) -> serenity::CreateAllowedMentions {
-		if let Some(role) = self.mention_role_id {
-			serenity::CreateAllowedMentions::new().roles([role])
-		} else {
-			serenity::CreateAllowedMentions::new()
 		}
 	}
 }

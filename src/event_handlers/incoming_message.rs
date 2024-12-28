@@ -5,7 +5,7 @@ use crate::{
 		blocked_users::is_user_blocked,
 		received_messages::{insert_received_message, ReceivedMessage},
 		threads::{delete_thread, get_thread_by_dm_channel, insert_thread, Thread},
-	}, formatting::{message_embed::{make_message_embed, MessageEmbedOptions}, thread_info::{make_thread_info, ThreadInfoOptions}, user_info_embed::make_user_info_embed}, util::{attachments::{clone_attachment, first_image_attachment}, json_error_codes::{get_json_error_code, UNKNOWN_CHANNEL}}, Data
+	}, formatting::{message_embed::{make_message_embed, MessageEmbedOptions}, thread_info::{make_thread_info, make_thread_info_allowed_mentions, ThreadInfoOptions}, user_info_embed::make_user_info_embed}, util::{attachments::{clone_attachment, first_image_attachment}, json_error_codes::{get_json_error_code, UNKNOWN_CHANNEL}}, Data
 };
 
 pub async fn handle_incoming_message(
@@ -146,7 +146,7 @@ async fn create_thread_from(
 				closed: None,
 			}
 		))
-		.allowed_mentions(data.config.forum_channel.allowed_mentions())
+		.allowed_mentions(make_thread_info_allowed_mentions(&data.config))
 		.embed(make_user_info_embed(context, &data.config, &message.author).await?);
 	let mut forum_post_builder = serenity::CreateForumPost::new(
 		format!("Thread from {}", &message.author.tag()),
