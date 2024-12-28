@@ -6,6 +6,8 @@ use crate::data::threads::get_thread;
 use crate::formatting::message_embed::make_message_embed;
 use crate::formatting::message_embed::MessageEmbedOptions;
 use crate::util::attachments::first_image_attachment;
+use crate::util::json_error_codes::get_json_error_code;
+use crate::util::json_error_codes::CANNOT_MESSAGE;
 
 use super::util::require_staff;
 use super::util::Context;
@@ -57,6 +59,8 @@ pub async fn reply_impl(context: Context<'_>, message: &str, anonymous: bool) ->
 		return Ok(());
 	};
 
+	context.defer().await?;
+
 	let dm_channel = serenity::ChannelId::new(thread_data.dm_channel_id);
 
 	let image_attachment = if let Context::Prefix(context) = context {
@@ -92,7 +96,7 @@ pub async fn reply_impl(context: Context<'_>, message: &str, anonymous: bool) ->
 		},
 	));
 
-	let forwarded_message = dm_channel
+	let forwarded_message_result = dm_channel
 		.send_files(
 			&context,
 			image_attachment_clone
@@ -101,7 +105,21 @@ pub async fn reply_impl(context: Context<'_>, message: &str, anonymous: bool) ->
 				.unwrap_or_default(),
 			forwarded_message_builder,
 		)
-		.await?;
+		.await;
+
+	let forwarded_message = match forwarded_message_result {
+		Ok(forwarded_message) => forwarded_message,
+		Err(error) => {
+			if let Some(CANNOT_MESSAGE) = get_json_error_code(&error) {
+				context.say("❌ Cannot currently send messages to the user. This is most likely because:
+- The app has been blocked.
+- The user does not share any mutual servers.
+- The users privacy settings do not allow direct messages.".to_string()).await?;
+				return Ok(());
+			}
+			return Err(error.into());
+		}
+	};
 
 	let mut source_message_builder = poise::CreateReply::default().embed(make_message_embed(
 		context.serenity_context(),
