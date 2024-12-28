@@ -36,5 +36,5 @@ pub async fn is_user_blocked(pg: &tokio_postgres::Client, id: u64) -> eyre::Resu
 		)
 		.await?;
 
-	Ok(rows.len() > 0)
+	Ok(!rows.is_empty())
 }

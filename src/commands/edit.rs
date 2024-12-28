@@ -1,7 +1,7 @@
 use eyre::OptionExt;
 use poise::{
 	serenity_prelude::{self as serenity},
-	Modal, Prefix,
+	Modal,
 };
 
 use crate::{

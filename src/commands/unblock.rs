@@ -1,6 +1,5 @@
 use poise::serenity_prelude as serenity;
 
-use crate::data::blocked_users::block_user;
 use crate::data::blocked_users::is_user_blocked;
 use crate::data::blocked_users::unblock_user;
 use crate::util::escape_markdown;

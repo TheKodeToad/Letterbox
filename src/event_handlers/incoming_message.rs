@@ -1,4 +1,4 @@
-use poise::serenity_prelude::{self as serenity, DiscordJsonError, Error, ErrorResponse, Http};
+use poise::serenity_prelude as serenity;
 
 use crate::{
 	data::{
@@ -180,7 +180,7 @@ async fn create_thread_from(
 
 	if let Some(suffix) = &data.config.messages.thread_open {
 		thread_open_message.push('\n');
-		thread_open_message += &suffix;
+		thread_open_message += suffix;
 	}
 
 	message
