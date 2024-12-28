@@ -3,8 +3,8 @@ use poise::serenity_prelude as serenity;
 use crate::data::sent_messages::insert_sent_message;
 use crate::data::sent_messages::SentMessage;
 use crate::data::threads::get_thread;
-use crate::formatting::make_message_embed;
-use crate::formatting::EmbedOptions;
+use crate::formatting::message_embed::make_message_embed;
+use crate::formatting::message_embed::MessageEmbedOptions;
 use crate::util::attachments::first_image_attachment;
 
 use super::util::require_staff;
@@ -82,8 +82,8 @@ pub async fn reply_impl(context: Context<'_>, message: &str, anonymous: bool) ->
 	let forwarded_message_builder = serenity::CreateMessage::new().add_embed(make_message_embed(
 		context.serenity_context(),
 		&context.data().config,
-		&EmbedOptions {
-			user: context.author(),
+		MessageEmbedOptions {
+			author: context.author(),
 			content: message,
 			image_filename: image_filename.as_deref(),
 			outgoing: false,
@@ -106,8 +106,8 @@ pub async fn reply_impl(context: Context<'_>, message: &str, anonymous: bool) ->
 	let mut source_message_builder = poise::CreateReply::default().embed(make_message_embed(
 		context.serenity_context(),
 		&context.data().config,
-		&EmbedOptions {
-			user: context.author(),
+		MessageEmbedOptions {
+			author: context.author(),
 			content: message,
 			image_filename: image_filename.as_deref(),
 			outgoing: true,

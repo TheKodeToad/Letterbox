@@ -6,7 +6,8 @@ use super::util::require_staff;
 use super::util::Context;
 use crate::data::threads::delete_thread;
 use crate::data::threads::get_thread;
-use crate::formatting::make_info_content;
+use crate::formatting::thread_info::make_thread_info;
+use crate::formatting::thread_info::ThreadInfoOptions;
 use crate::util::markdown::escape_markdown;
 
 /// Close a mod-mail thread.
@@ -106,13 +107,13 @@ async fn close_impl(context: Context<'_>, silent: bool, anonymous: bool) -> eyre
 	};
 
 	let info_builder = serenity::EditMessage::new()
-		.content(make_info_content(
+		.content(make_thread_info(
 			&context.data().config,
-			serenity::UserId::new(thread_data.user_id),
-			serenity::UserId::new(thread_data.opened_by_id),
-			thread_data.created_at.into(),
-			Some(context.author().id),
-			Some(context.created_at()),
+			ThreadInfoOptions {
+			user_id: serenity::UserId::new(thread_data.user_id),
+			opened: (serenity::UserId::new(thread_data.opened_by_id), thread_data.created_at.into()),
+			closed: Some((context.author().id, context.created_at())),
+			}
 		))
 		.allowed_mentions(context.data().config.forum_channel.allowed_mentions());
 

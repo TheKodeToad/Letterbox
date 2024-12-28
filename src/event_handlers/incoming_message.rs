@@ -5,10 +5,7 @@ use crate::{
 		blocked_users::is_user_blocked,
 		received_messages::{insert_received_message, ReceivedMessage},
 		threads::{delete_thread, get_thread_by_dm_channel, insert_thread, Thread},
-	},
-	formatting::{make_info_content, make_info_embed, make_message_embed, EmbedOptions},
-	util::{attachments::{clone_attachment, first_image_attachment}, json_error_codes::{get_json_error_code, UNKNOWN_CHANNEL}},
-	Data,
+	}, formatting::{message_embed::{make_message_embed, MessageEmbedOptions}, thread_info::{make_thread_info, ThreadInfoOptions}, user_info_embed::make_user_info_embed}, util::{attachments::{clone_attachment, first_image_attachment}, json_error_codes::{get_json_error_code, UNKNOWN_CHANNEL}}, Data
 };
 
 pub async fn handle_incoming_message(
@@ -73,8 +70,8 @@ async fn handle_incoming_message_impl(
 	let forwarded_message_builder = serenity::CreateMessage::new().add_embed(make_message_embed(
 		context,
 		&data.config,
-		&EmbedOptions {
-			user: &message.author,
+		MessageEmbedOptions {
+			author: &message.author,
 			content: &message.content,
 			image_filename: image_filename.as_deref(),
 			outgoing: false,
@@ -141,16 +138,16 @@ async fn create_thread_from(
 ) -> eyre::Result<serenity::ChannelId> {
 	let created_at = message.id.created_at();
 	let info_builder = serenity::CreateMessage::new()
-		.content(make_info_content(
+		.content(make_thread_info(
 			&data.config,
-			message.author.id,
-			message.author.id,
-			created_at,
-			None,
-			None,
+			ThreadInfoOptions {
+				user_id: message.author.id,
+				opened: (message.author.id, created_at),
+				closed: None,
+			}
 		))
 		.allowed_mentions(data.config.forum_channel.allowed_mentions())
-		.embed(make_info_embed(context, &data.config, &message.author).await?);
+		.embed(make_user_info_embed(context, &data.config, &message.author).await?);
 	let mut forum_post_builder = serenity::CreateForumPost::new(
 		format!("Thread from {}", &message.author.tag()),
 		info_builder,

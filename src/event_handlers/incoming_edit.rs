@@ -1,7 +1,7 @@
 use poise::serenity_prelude as serenity;
 
 use crate::{
-	data::received_messages::get_received_message, formatting::{make_message_embed, EmbedOptions}, Data
+	data::received_messages::get_received_message, formatting::message_embed::{make_message_embed, MessageEmbedOptions}, Data
 };
 
 pub async fn handle_incoming_edit(
@@ -40,8 +40,8 @@ pub async fn handle_incoming_edit(
 	let forwarded_message_builder = serenity::EditMessage::new().add_embed(make_message_embed(
 		context,
 		&data.config,
-		&EmbedOptions {
-			user: author,
+		MessageEmbedOptions {
+			author,
 			content,
 			image_filename: received_message.image_filename.as_deref(),
 			outgoing: false,

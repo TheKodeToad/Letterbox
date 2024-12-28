@@ -1,8 +1,7 @@
 use poise::serenity_prelude::{self as serenity, Mentionable};
 
 use crate::{
-	data::threads::{get_thread_by_user, insert_thread, Thread},
-	formatting::{make_info_content, make_info_embed},
+	data::threads::{get_thread_by_user, insert_thread, Thread}, formatting::{thread_info::{make_thread_info, ThreadInfoOptions}, user_info_embed::make_user_info_embed},
 };
 
 use super::util::{require_staff, Context};
@@ -45,16 +44,16 @@ pub async fn contact(
 	let created_at = context.created_at();
 
 	let info_builder = serenity::CreateMessage::new()
-		.content(make_info_content(
+		.content(make_thread_info(
 			&context.data().config,
-			user.id,
-			context.author().id,
-			created_at,
-			None,
-			None,
+			ThreadInfoOptions {
+				user_id: user.id,
+				opened: (context.author().id, created_at),
+				closed: None,
+			}
 		))
 		.allowed_mentions(context.data().config.forum_channel.allowed_mentions())
-		.embed(make_info_embed(context.serenity_context(), &context.data().config, &user).await?);
+		.embed(make_user_info_embed(context.serenity_context(), &context.data().config, &user).await?);
 
 	let mut forum_post_builder =
 		serenity::CreateForumPost::new(format!("Thread for {}", &user.tag()), info_builder);

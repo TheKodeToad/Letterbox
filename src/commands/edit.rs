@@ -5,8 +5,7 @@ use poise::{
 };
 
 use crate::{
-	data::{sent_messages::get_sent_message, threads::get_thread},
-	formatting::{make_message_embed, EmbedOptions},
+	data::{sent_messages::get_sent_message, threads::get_thread}, formatting::message_embed::{make_message_embed, MessageEmbedOptions},
 };
 
 use super::util::PrefixContext;
@@ -100,8 +99,8 @@ pub async fn edit_impl(
 	let forwarded_message_builder = serenity::EditMessage::new().embed(make_message_embed(
 		context.serenity_context(),
 		&context.data().config,
-		&EmbedOptions {
-			user: context.author(),
+		MessageEmbedOptions {
+			author: context.author(),
 			content: &content,
 			image_filename: sent_message.image_filename.as_deref(),
 			outgoing: false,
@@ -121,8 +120,8 @@ pub async fn edit_impl(
 	let source_message_builder = serenity::EditMessage::new().embed(make_message_embed(
 		context.serenity_context(),
 		&context.data().config,
-		&EmbedOptions {
-			user: context.author(),
+		MessageEmbedOptions {
+			author: context.author(),
 			content: &content,
 			image_filename: sent_message.image_filename.as_deref(),
 			outgoing: true,
