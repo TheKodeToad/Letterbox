@@ -7,7 +7,7 @@ use super::util::Context;
 use crate::data::threads::delete_thread;
 use crate::data::threads::get_thread;
 use crate::formatting::make_info_content;
-use crate::util::escape_markdown;
+use crate::util::markdown::escape_markdown;
 
 /// Close a mod-mail thread.
 #[poise::command(

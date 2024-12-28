@@ -2,7 +2,7 @@ use poise::serenity_prelude as serenity;
 
 use crate::data::blocked_users::block_user;
 use crate::data::blocked_users::is_user_blocked;
-use crate::util::escape_markdown;
+use crate::util::markdown::escape_markdown;
 
 use super::util::require_staff;
 use super::util::Context;

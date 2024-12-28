@@ -7,7 +7,7 @@ use crate::{
 		threads::{delete_thread, get_thread_by_dm_channel, insert_thread, Thread},
 	},
 	formatting::{make_info_content, make_info_embed, make_message_embed, EmbedOptions},
-	util::{clone_attachment, first_image_attachment, get_json_error_code},
+	util::{attachments::{clone_attachment, first_image_attachment}, json_error_codes::{get_json_error_code, UNKNOWN_CHANNEL}},
 	Data,
 };
 
@@ -95,7 +95,7 @@ async fn handle_incoming_message_impl(
 		Ok(forwarded_message) => forwarded_message,
 		Err(err) => {
 			// matching all errors could result in a thread being erroneosly deleted (which is irreversible)
-			if let Some(10_003 /* Unknown Channel */) = get_json_error_code(&err) {
+			if let Some(UNKNOWN_CHANNEL) = get_json_error_code(&err) {
 				if is_user_blocked(&data.pg, message.author.id.get()).await? {
 					return Ok(());
 				}

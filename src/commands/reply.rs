@@ -5,7 +5,7 @@ use crate::data::sent_messages::SentMessage;
 use crate::data::threads::get_thread;
 use crate::formatting::make_message_embed;
 use crate::formatting::EmbedOptions;
-use crate::util::first_image_attachment;
+use crate::util::attachments::first_image_attachment;
 
 use super::util::require_staff;
 use super::util::Context;
