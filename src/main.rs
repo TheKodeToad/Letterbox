@@ -96,7 +96,9 @@ async fn setup(
 
 	let postgres_config = std::env::var("POSTGRES_CONNECTION")?;
 
-	let config = Config::new_from_file(Path::new("config.toml"))?;
+	let config_path = std::env::var("CONFIG_PATH").unwrap_or("config.toml".into());
+
+	let config = Config::new_from_file(Path::new(&config_path))?;
 
 	context
 		.shard

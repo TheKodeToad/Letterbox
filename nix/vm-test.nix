@@ -17,6 +17,11 @@
         environmentFile = pkgs.writeText "letterbox.env" ''
           DISCORD_BOT_TOKEN=example
         '';
+        settings = {
+          server_id = 1;
+          staff_roles = [ 2 ];
+          forum_channel.id = 3;
+        };
       };
     };
 
