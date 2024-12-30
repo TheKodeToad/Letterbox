@@ -1,3 +1,5 @@
+#![allow(clippy::cast_possible_wrap)]
+
 pub async fn block_user(pg: &tokio_postgres::Client, id: u64) -> eyre::Result<()> {
 	pg.execute(
 		r#"

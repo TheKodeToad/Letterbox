@@ -52,10 +52,7 @@ pub async fn delete_context_menu(
 	Ok(())
 }
 
-pub async fn delete_impl(
-	context: &Context<'_>,
-	message_id: serenity::MessageId,
-) -> eyre::Result<bool> {
+async fn delete_impl(context: &Context<'_>, message_id: serenity::MessageId) -> eyre::Result<bool> {
 	let Some(sent_message) = get_sent_message(&context.data().pg, message_id.get()).await? else {
 		context
 			.say("❌ This message was not sent with the reply command or the thread was closed.")

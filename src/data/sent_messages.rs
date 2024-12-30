@@ -1,3 +1,5 @@
+#![allow(clippy::cast_possible_wrap, clippy::cast_sign_loss)]
+
 pub struct SentMessage {
 	pub id: u64,
 	pub thread_id: u64,
@@ -11,7 +13,7 @@ impl SentMessage {
 	fn from_row(row: &tokio_postgres::Row) -> Self {
 		let id: i64 = row.get("id");
 		let thread_id: i64 = row.get("thread_id");
-		let fowarded_message_id: i64 = row.get("forwarded_message_id");
+		let forwarded_message_id: i64 = row.get("forwarded_message_id");
 		let author_id: i64 = row.get("author_id");
 		let anonymous: bool = row.get("anonymous");
 		let image_filename: Option<String> = row.get("image_filename");
@@ -20,7 +22,7 @@ impl SentMessage {
 			id: id as u64,
 			thread_id: thread_id as u64,
 			author_id: author_id as u64,
-			forwarded_message_id: fowarded_message_id as u64,
+			forwarded_message_id: forwarded_message_id as u64,
 			anonymous,
 			image_filename,
 		}

@@ -2,7 +2,7 @@ use poise::serenity_prelude as serenity;
 
 use crate::{data::threads::get_thread_by_user, Data};
 
-pub async fn handle_thread_user_join(
+pub async fn handle(
 	context: &serenity::Context,
 	member: &serenity::Member,
 	data: &Data,

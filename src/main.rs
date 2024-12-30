@@ -1,11 +1,18 @@
 use std::path::Path;
+use std::sync::Arc;
 
 use commands::commands;
 use config::Config;
 use data::migrations;
 use error_handler::handle_error;
 use event_handlers::handle_event;
+use log::warn;
 use poise::serenity_prelude as serenity;
+use tokio::signal::ctrl_c;
+#[cfg(target_family = "unix")]
+use tokio::signal::unix::{signal, SignalKind};
+#[cfg(target_family = "windows")]
+use tokio::signal::windows::ctrl_close;
 
 mod commands;
 mod config;
@@ -18,6 +25,11 @@ mod util;
 pub struct Data {
 	config: Config,
 	pg: tokio_postgres::Client,
+}
+
+enum ShutdownReason {
+	Sigterm,
+	CtrlC,
 }
 
 #[tokio::main]
@@ -33,7 +45,7 @@ async fn main() -> eyre::Result<()> {
 		allowed_mentions: Some(serenity::CreateAllowedMentions::new()),
 		prefix_options: poise::PrefixFrameworkOptions {
 			dynamic_prefix: Some(|context| {
-				Box::pin(async move { Ok(Some(context.data.config.prefix.to_owned())) })
+				Box::pin(async move { Ok(Some(context.data.config.prefix.clone())) })
 			}),
 			..Default::default()
 		},
@@ -56,9 +68,24 @@ async fn main() -> eyre::Result<()> {
 		.framework(framework)
 		.await?;
 
-	client.start().await?;
+	let shard_manager = client.shard_manager.clone();
 
-	Ok(())
+	#[cfg(target_family = "unix")]
+	let mut sigterm = signal(SignalKind::terminate())?;
+	#[cfg(target_family = "windows")]
+	let mut sigterm = ctrl_close()?;
+
+	tokio::select! {
+		result = client.start() => result.map_err(eyre::Report::from),
+		_ = sigterm.recv() => {
+			handle_shutdown(shard_manager, ShutdownReason::Sigterm).await;
+			std::process::exit(0);
+		}
+		_ = ctrl_c() => {
+			handle_shutdown(shard_manager, ShutdownReason::CtrlC).await;
+			std::process::exit(130);
+		}
+	}
 }
 
 async fn setup(
@@ -90,4 +117,15 @@ async fn setup(
 		config,
 		pg: pg_client,
 	})
+}
+
+async fn handle_shutdown(shard_manager: Arc<serenity::ShardManager>, reason: ShutdownReason) {
+	let reason = match reason {
+		ShutdownReason::CtrlC => "Interrupted",
+		ShutdownReason::Sigterm => "Received SIGTERM",
+	};
+
+	warn!("{reason}! Shutting down bot...");
+	shard_manager.shutdown_all().await;
+	println!("Everything is shutdown. Goodbye!");
 }

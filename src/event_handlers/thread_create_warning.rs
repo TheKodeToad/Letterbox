@@ -2,7 +2,7 @@ use poise::serenity_prelude as serenity;
 
 use crate::Data;
 
-pub async fn handle_thread_create_warning(
+pub async fn handle(
 	context: &serenity::Context,
 	message: &serenity::Message,
 	data: &Data,

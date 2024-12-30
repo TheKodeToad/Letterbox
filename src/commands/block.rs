@@ -2,7 +2,7 @@ use poise::serenity_prelude as serenity;
 
 use crate::data::blocked_users::block_user;
 use crate::data::blocked_users::is_user_blocked;
-use crate::util::markdown::escape_markdown;
+use crate::util::markdown;
 
 use super::util::require_staff;
 use super::util::Context;
@@ -72,7 +72,7 @@ async fn block_impl(context: Context<'_>, user: serenity::User, silent: bool) ->
 		context.reply("✅ Why do this to yourself?").await?;
 	} else {
 		context
-			.reply(format!("✅ Blocked **{}**!", escape_markdown(&user.tag())))
+			.reply(format!("✅ Blocked **{}**!", markdown::escape(&user.tag())))
 			.await?;
 	}
 

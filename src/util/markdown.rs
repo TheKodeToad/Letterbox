@@ -1,8 +1,8 @@
 // hacky but it works pretty well
 // can't find any crates for this 🤷‍♀️
-const FORMATTING_CHARS: &str = r#"\/*_-`#@<>.~|:[]()"#;
+const FORMATTING_CHARS: &str = r"\/*_-`#@<>.~|:[]()";
 
-pub fn escape_markdown(input: &str) -> String {
+pub fn escape(input: &str) -> String {
 	let mut result = String::new();
 
 	for char in input.chars() {

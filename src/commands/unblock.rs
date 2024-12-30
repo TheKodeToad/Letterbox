@@ -2,7 +2,7 @@ use poise::serenity_prelude as serenity;
 
 use crate::data::blocked_users::is_user_blocked;
 use crate::data::blocked_users::unblock_user;
-use crate::util::markdown::escape_markdown;
+use crate::util::markdown;
 
 use super::util::require_staff;
 use super::util::Context;
@@ -74,7 +74,7 @@ async fn unblock_impl(
 	context
 		.reply(format!(
 			"✅ Unblocked **{}**!",
-			escape_markdown(&user.tag())
+			markdown::escape(&user.tag())
 		))
 		.await?;
 

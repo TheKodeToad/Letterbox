@@ -4,13 +4,14 @@ use poise::serenity_prelude::{self as serenity, Mentionable};
 
 use crate::config::Config;
 
-pub struct ThreadInfoOptions {
+#[derive(Clone, Copy, Debug)]
+pub struct Options {
 	pub user_id: serenity::UserId,
 	pub opened: (serenity::UserId, serenity::Timestamp),
 	pub closed: Option<(serenity::UserId, serenity::Timestamp)>,
 }
 
-pub fn make_thread_info(config: &Config, options: ThreadInfoOptions) -> String {
+pub fn create(config: &Config, options: Options) -> String {
 	let opened_discord_timestamp = serenity::FormattedTimestamp::new(
 		options.opened.1,
 		Some(serenity::FormattedTimestampStyle::RelativeTime),
@@ -59,7 +60,7 @@ pub fn make_thread_info(config: &Config, options: ThreadInfoOptions) -> String {
 	result
 }
 
-pub fn make_thread_info_allowed_mentions(config: &Config) -> serenity::CreateAllowedMentions {
+pub fn create_allowed_mentions(config: &Config) -> serenity::CreateAllowedMentions {
 	if let Some(role) = config.forum_channel.mention_role_id {
 		serenity::CreateAllowedMentions::new().roles([role])
 	} else {

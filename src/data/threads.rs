@@ -1,3 +1,5 @@
+#![allow(clippy::cast_possible_wrap, clippy::cast_sign_loss)]
+
 pub struct Thread {
 	pub id: u64,
 	pub dm_channel_id: u64,

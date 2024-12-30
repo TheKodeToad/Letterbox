@@ -24,27 +24,22 @@ pub async fn handle_error(error: poise::FrameworkError<'_, Data, eyre::Report>) 
 
 			context.say(GENERIC_ERROR).await.ok();
 		}
-		poise::FrameworkError::CommandCheckFailed {
-			error,
-			ctx: context,
-			..
-		} => {
+		poise::FrameworkError::CommandCheckFailed { error, ctx, .. } => {
 			if let Some(error) = error {
 				log::error!(
 					"Error checking permissions for {}:\n{error:?}",
-					context.command().name
+					ctx.command().name
 				);
 
-				context.say(GENERIC_ERROR).await.ok();
-			} else if matches!(context, poise::Context::Application(_)) {
-				context
-					.send(
-						poise::CreateReply::default()
-							.content("❌ Permission denied.")
-							.ephemeral(true),
-					)
-					.await
-					.ok();
+				ctx.say(GENERIC_ERROR).await.ok();
+			} else if let poise::Context::Application(ctx) = ctx {
+				ctx.send(
+					poise::CreateReply::default()
+						.content("❌ Permission denied.")
+						.ephemeral(true),
+				)
+				.await
+				.ok();
 			}
 		}
 		poise::FrameworkError::EventHandler { error, event, .. } => {
