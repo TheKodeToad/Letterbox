@@ -13,6 +13,6 @@ log = "0.4.22"
 poise = "0.6.1"
 refinery = { version = "0.8.14", features = [ "tokio-postgres" ] }
 serde = "1.0.215"
-tokio = { version = "1.42.0", features = [ "rt-multi-thread" ] }
+tokio = { version = "1.42.0", features = [ "rt-multi-thread", "signal" ] }
 tokio-postgres = { version = "0.7.12", features = ["with-chrono-0_4"] }
 toml = "0.8.19"
