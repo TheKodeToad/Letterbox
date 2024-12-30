@@ -91,11 +91,11 @@ async fn handle_impl(
 		.map(|attachment| vec![attachment])
 		.unwrap_or_default();
 
-	let fowarded_message_result = thread
+	let forwarded_message_result = thread
 		.send_files(context, files.clone(), forwarded_message_builder.clone())
 		.await;
 
-	let forwarded_message = match fowarded_message_result {
+	let forwarded_message = match forwarded_message_result {
 		Ok(forwarded_message) => forwarded_message,
 		Err(err) => {
 			// matching all errors could result in a thread being erroneosly deleted (which is irreversible)

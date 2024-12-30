@@ -62,7 +62,7 @@ pub async fn handle(
 			.send_message(
 				&context.http,
 				serenity::CreateMessage::new()
-					.content("❌ An error occured - your edit did not go through.")
+					.content("❌ An error occurred - your edit did not go through.")
 					.reference_message(
 						serenity::MessageReference::new(
 							serenity::MessageReferenceKind::Default,
