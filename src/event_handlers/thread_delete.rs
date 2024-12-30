@@ -5,10 +5,7 @@ use crate::{
 	Data,
 };
 
-pub async fn handle_thread_delete(
-	thread: &serenity::PartialGuildChannel,
-	data: &Data,
-) -> eyre::Result<()> {
+pub async fn handle(thread: &serenity::PartialGuildChannel, data: &Data) -> eyre::Result<()> {
 	if get_thread(&data.pg, thread.id.get()).await?.is_none() {
 		return Ok(());
 	}

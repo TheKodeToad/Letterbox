@@ -2,7 +2,8 @@ use poise::serenity_prelude as serenity;
 
 use crate::config::Config;
 
-pub struct MessageEmbedOptions<'a> {
+#[derive(Clone, Copy, Debug)]
+pub struct Options<'a> {
 	pub author: &'a serenity::User,
 	pub content: &'a str,
 	pub image_filename: Option<&'a str>,
@@ -11,10 +12,10 @@ pub struct MessageEmbedOptions<'a> {
 	pub user_info: bool,
 }
 
-pub fn make_message_embed(
+pub fn create(
 	context: &serenity::Context,
 	config: &Config,
-	options: MessageEmbedOptions,
+	options: Options,
 ) -> serenity::CreateEmbed {
 	let mut result = serenity::CreateEmbed::new().description(options.content);
 

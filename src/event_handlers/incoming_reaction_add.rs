@@ -2,7 +2,7 @@ use poise::serenity_prelude as serenity;
 
 use crate::{data::sent_messages::get_sent_message_by_forwarded_message, Data};
 
-pub async fn handle_incoming_reaction_add(
+pub async fn handle(
 	context: &serenity::Context,
 	reaction: &serenity::Reaction,
 	data: &Data,

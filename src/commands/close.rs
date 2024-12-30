@@ -6,10 +6,8 @@ use super::util::require_staff;
 use super::util::Context;
 use crate::data::threads::delete_thread;
 use crate::data::threads::get_thread;
-use crate::formatting::thread_info::make_thread_info;
-use crate::formatting::thread_info::make_thread_info_allowed_mentions;
-use crate::formatting::thread_info::ThreadInfoOptions;
-use crate::util::markdown::escape_markdown;
+use crate::formatting::thread_info;
+use crate::util::markdown;
 
 /// Close a mod-mail thread.
 #[poise::command(
@@ -71,7 +69,7 @@ async fn close_impl(context: Context<'_>, silent: bool, anonymous: bool) -> eyre
 	} else {
 		format!(
 			"⛔ Thread closed by **{}**.",
-			escape_markdown(context.author().display_name())
+			markdown::escape(context.author().display_name())
 		)
 	};
 	if let Some(suffix) = &context.data().config.messages.thread_closed {
@@ -108,9 +106,9 @@ async fn close_impl(context: Context<'_>, silent: bool, anonymous: bool) -> eyre
 	};
 
 	let info_builder = serenity::EditMessage::new()
-		.content(make_thread_info(
+		.content(thread_info::create(
 			&context.data().config,
-			ThreadInfoOptions {
+			thread_info::Options {
 				user_id: serenity::UserId::new(thread_data.user_id),
 				opened: (
 					serenity::UserId::new(thread_data.opened_by_id),
@@ -119,7 +117,7 @@ async fn close_impl(context: Context<'_>, silent: bool, anonymous: bool) -> eyre
 				closed: Some((context.author().id, context.created_at())),
 			},
 		))
-		.allowed_mentions(make_thread_info_allowed_mentions(&context.data().config));
+		.allowed_mentions(thread_info::create_allowed_mentions(&context.data().config));
 
 	thread
 		.edit_message(&context.http(), thread.id.get(), info_builder)

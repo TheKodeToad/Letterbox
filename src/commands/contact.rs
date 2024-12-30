@@ -2,10 +2,7 @@ use poise::serenity_prelude::{self as serenity, Mentionable};
 
 use crate::{
 	data::threads::{get_thread_by_user, insert_thread, Thread},
-	formatting::{
-		thread_info::{make_thread_info, make_thread_info_allowed_mentions, ThreadInfoOptions},
-		user_info_embed::make_user_info_embed,
-	},
+	formatting::{thread_info, user_info_embed},
 };
 
 use super::util::{require_staff, Context};
@@ -48,24 +45,25 @@ pub async fn contact(
 	let created_at = context.created_at();
 
 	let info_builder = serenity::CreateMessage::new()
-		.content(make_thread_info(
+		.content(thread_info::create(
 			&context.data().config,
-			ThreadInfoOptions {
+			thread_info::Options {
 				user_id: user.id,
 				opened: (context.author().id, created_at),
 				closed: None,
 			},
 		))
-		.allowed_mentions(make_thread_info_allowed_mentions(&context.data().config))
+		.allowed_mentions(thread_info::create_allowed_mentions(&context.data().config))
 		.embed(
-			make_user_info_embed(context.serenity_context(), &context.data().config, &user).await?,
+			user_info_embed::create(context.serenity_context(), &context.data().config, &user)
+				.await?,
 		);
 
 	let mut forum_post_builder =
 		serenity::CreateForumPost::new(format!("Thread for {}", &user.tag()), info_builder);
 
 	if let Some(open_tag_id) = context.data().config.forum_channel.open_tag_id {
-		forum_post_builder = forum_post_builder.add_applied_tag(open_tag_id)
+		forum_post_builder = forum_post_builder.add_applied_tag(open_tag_id);
 	}
 
 	let forum_post = context

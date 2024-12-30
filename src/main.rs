@@ -45,7 +45,7 @@ async fn main() -> eyre::Result<()> {
 		allowed_mentions: Some(serenity::CreateAllowedMentions::new()),
 		prefix_options: poise::PrefixFrameworkOptions {
 			dynamic_prefix: Some(|context| {
-				Box::pin(async move { Ok(Some(context.data.config.prefix.to_owned())) })
+				Box::pin(async move { Ok(Some(context.data.config.prefix.clone())) })
 			}),
 			..Default::default()
 		},

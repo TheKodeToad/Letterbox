@@ -1,3 +1,5 @@
+#![allow(clippy::cast_possible_wrap, clippy::cast_sign_loss)]
+
 pub struct ReceivedMessage {
 	pub id: u64,
 	pub thread_id: u64,

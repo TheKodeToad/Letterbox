@@ -2,7 +2,7 @@ use poise::serenity_prelude::{self as serenity, Mentionable};
 
 use crate::config::Config;
 
-pub async fn make_user_info_embed(
+pub async fn create(
 	context: &serenity::Context,
 	config: &Config,
 	user: &serenity::User,
@@ -34,14 +34,13 @@ pub async fn make_user_info_embed(
 	if let Some(member) = member {
 		let joined_at_text = member
 			.joined_at
-			.map(|joined_at| {
+			.map_or("*Unknown Date*".to_string(), |joined_at| {
 				serenity::FormattedTimestamp::new(
 					joined_at,
 					Some(serenity::FormattedTimestampStyle::ShortDateTime),
 				)
 				.to_string()
-			})
-			.unwrap_or("*Unknown Date*".to_string());
+			});
 
 		result = result.field("Server Member Since", joined_at_text, true);
 

@@ -3,14 +3,19 @@ use poise::serenity_prelude as serenity;
 use crate::data::sent_messages::insert_sent_message;
 use crate::data::sent_messages::SentMessage;
 use crate::data::threads::get_thread;
-use crate::formatting::message_embed::make_message_embed;
-use crate::formatting::message_embed::MessageEmbedOptions;
+use crate::formatting::message_embed;
 use crate::util::attachments::first_image_attachment;
 use crate::util::json_error_codes::get_json_error_code;
 use crate::util::json_error_codes::CANNOT_MESSAGE;
 
 use super::util::require_staff;
 use super::util::Context;
+
+const CANNOT_MESSAGE_ERROR: &str =
+	"❌ Cannot currently send messages to the user. This is most likely because:
+- The app has been blocked.
+- The user does not share any mutual servers.
+- The users privacy settings do not allow direct messages.";
 
 /// Reply to a mod-mail thread.
 #[poise::command(
@@ -26,7 +31,7 @@ pub async fn reply(
 	#[description = "The message to send."]
 	message: String,
 ) -> eyre::Result<()> {
-	reply_impl(context, &message, false).await
+	create(context, &message, false).await
 }
 
 /// Reply to a mod-mail thread anonymously.
@@ -43,10 +48,10 @@ pub async fn anon_reply(
 	#[description = "The message to send."]
 	message: String,
 ) -> eyre::Result<()> {
-	reply_impl(context, &message, true).await
+	create(context, &message, true).await
 }
 
-pub async fn reply_impl(context: Context<'_>, message: &str, anonymous: bool) -> eyre::Result<()> {
+async fn create(context: Context<'_>, message: &str, anonymous: bool) -> eyre::Result<()> {
 	let Some(thread_data) = get_thread(&context.data().pg, context.channel_id().get()).await?
 	else {
 		context
@@ -72,7 +77,9 @@ pub async fn reply_impl(context: Context<'_>, message: &str, anonymous: bool) ->
 	let image_attachment_clone = if let Some(image_attachment) = image_attachment {
 		let mut forwarded_attachment =
 			serenity::CreateAttachment::url(&context.http(), &image_attachment.url).await?;
-		forwarded_attachment.filename = image_attachment.filename.clone();
+		forwarded_attachment
+			.filename
+			.clone_from(&image_attachment.filename);
 
 		Some(forwarded_attachment)
 	} else {
@@ -83,18 +90,19 @@ pub async fn reply_impl(context: Context<'_>, message: &str, anonymous: bool) ->
 		.as_ref()
 		.map(|attachment| attachment.filename.clone());
 
-	let forwarded_message_builder = serenity::CreateMessage::new().add_embed(make_message_embed(
-		context.serenity_context(),
-		&context.data().config,
-		MessageEmbedOptions {
-			author: context.author(),
-			content: message,
-			image_filename: image_filename.as_deref(),
-			outgoing: false,
-			anonymous,
-			user_info: false,
-		},
-	));
+	let forwarded_message_builder =
+		serenity::CreateMessage::new().add_embed(message_embed::create(
+			context.serenity_context(),
+			&context.data().config,
+			message_embed::Options {
+				author: context.author(),
+				content: message,
+				image_filename: image_filename.as_deref(),
+				outgoing: false,
+				anonymous,
+				user_info: false,
+			},
+		));
 
 	let forwarded_message_result = dm_channel
 		.send_files(
@@ -111,20 +119,17 @@ pub async fn reply_impl(context: Context<'_>, message: &str, anonymous: bool) ->
 		Ok(forwarded_message) => forwarded_message,
 		Err(error) => {
 			if let Some(CANNOT_MESSAGE) = get_json_error_code(&error) {
-				context.say("❌ Cannot currently send messages to the user. This is most likely because:
-- The app has been blocked.
-- The user does not share any mutual servers.
-- The users privacy settings do not allow direct messages.".to_string()).await?;
+				context.say(CANNOT_MESSAGE_ERROR).await?;
 				return Ok(());
 			}
 			return Err(error.into());
 		}
 	};
 
-	let mut source_message_builder = poise::CreateReply::default().embed(make_message_embed(
+	let mut source_message_builder = poise::CreateReply::default().embed(message_embed::create(
 		context.serenity_context(),
 		&context.data().config,
-		MessageEmbedOptions {
+		message_embed::Options {
 			author: context.author(),
 			content: message,
 			image_filename: image_filename.as_deref(),

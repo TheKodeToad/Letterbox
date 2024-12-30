@@ -1,5 +1,7 @@
-use poise::serenity_prelude as serenity;
+#![allow(clippy::module_name_repetitions)]
 use std::{collections::HashSet, fs, path::Path};
+
+use poise::serenity_prelude as serenity;
 
 #[derive(serde::Serialize, serde::Deserialize)]
 pub struct Config {

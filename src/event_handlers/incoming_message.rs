@@ -6,11 +6,7 @@ use crate::{
 		received_messages::{insert_received_message, ReceivedMessage},
 		threads::{delete_thread, get_thread_by_dm_channel, insert_thread, Thread},
 	},
-	formatting::{
-		message_embed::{make_message_embed, MessageEmbedOptions},
-		thread_info::{make_thread_info, make_thread_info_allowed_mentions, ThreadInfoOptions},
-		user_info_embed::make_user_info_embed,
-	},
+	formatting::{message_embed, thread_info, user_info_embed},
 	util::{
 		attachments::{clone_attachment, first_image_attachment},
 		json_error_codes::{get_json_error_code, UNKNOWN_CHANNEL},
@@ -18,12 +14,12 @@ use crate::{
 	Data,
 };
 
-pub async fn handle_incoming_message(
+pub async fn handle(
 	context: &serenity::Context,
 	message: &serenity::Message,
 	data: &Data,
 ) -> eyre::Result<()> {
-	let result = handle_incoming_message_impl(context, message, data).await;
+	let result = handle_impl(context, message, data).await;
 
 	if let Err(error) = result {
 		message
@@ -37,7 +33,7 @@ pub async fn handle_incoming_message(
 	Ok(())
 }
 
-async fn handle_incoming_message_impl(
+async fn handle_impl(
 	context: &serenity::Context,
 	message: &serenity::Message,
 	data: &Data,
@@ -77,18 +73,19 @@ async fn handle_incoming_message_impl(
 		None
 	};
 
-	let forwarded_message_builder = serenity::CreateMessage::new().add_embed(make_message_embed(
-		context,
-		&data.config,
-		MessageEmbedOptions {
-			author: &message.author,
-			content: &message.content,
-			image_filename: image_filename.as_deref(),
-			outgoing: false,
-			anonymous: false,
-			user_info: true,
-		},
-	));
+	let forwarded_message_builder =
+		serenity::CreateMessage::new().add_embed(message_embed::create(
+			context,
+			&data.config,
+			message_embed::Options {
+				author: &message.author,
+				content: &message.content,
+				image_filename: image_filename.as_deref(),
+				outgoing: false,
+				anonymous: false,
+				user_info: true,
+			},
+		));
 
 	let files = cloned_image_attachment
 		.map(|attachment| vec![attachment])
@@ -148,22 +145,22 @@ async fn create_thread_from(
 ) -> eyre::Result<serenity::ChannelId> {
 	let created_at = message.id.created_at();
 	let info_builder = serenity::CreateMessage::new()
-		.content(make_thread_info(
+		.content(thread_info::create(
 			&data.config,
-			ThreadInfoOptions {
+			thread_info::Options {
 				user_id: message.author.id,
 				opened: (message.author.id, created_at),
 				closed: None,
 			},
 		))
-		.allowed_mentions(make_thread_info_allowed_mentions(&data.config))
-		.embed(make_user_info_embed(context, &data.config, &message.author).await?);
+		.allowed_mentions(thread_info::create_allowed_mentions(&data.config))
+		.embed(user_info_embed::create(context, &data.config, &message.author).await?);
 	let mut forum_post_builder = serenity::CreateForumPost::new(
 		format!("Thread from {}", &message.author.tag()),
 		info_builder,
 	);
 	if let Some(open_tag_id) = data.config.forum_channel.open_tag_id {
-		forum_post_builder = forum_post_builder.add_applied_tag(open_tag_id)
+		forum_post_builder = forum_post_builder.add_applied_tag(open_tag_id);
 	}
 	let forum_post = data
 		.config

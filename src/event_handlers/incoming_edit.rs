@@ -1,12 +1,8 @@
 use poise::serenity_prelude as serenity;
 
-use crate::{
-	data::received_messages::get_received_message,
-	formatting::message_embed::{make_message_embed, MessageEmbedOptions},
-	Data,
-};
+use crate::{data::received_messages::get_received_message, formatting::message_embed, Data};
 
-pub async fn handle_incoming_edit(
+pub async fn handle(
 	context: &serenity::Context,
 	message: &serenity::MessageUpdateEvent,
 	data: &Data,
@@ -22,7 +18,7 @@ pub async fn handle_incoming_edit(
 	let Some(ref author) = message.author else {
 		return Ok(());
 	};
-	let Some(ref content) = message.content else {
+	let Some(ref message_content) = message.content else {
 		// content not changed, only thing we really care about
 		return Ok(());
 	};
@@ -39,12 +35,12 @@ pub async fn handle_incoming_edit(
 		.await?;
 
 	let thread = serenity::ChannelId::new(received_message.thread_id);
-	let forwarded_message_builder = serenity::EditMessage::new().add_embed(make_message_embed(
+	let forwarded_message_builder = serenity::EditMessage::new().add_embed(message_embed::create(
 		context,
 		&data.config,
-		MessageEmbedOptions {
+		message_embed::Options {
 			author,
-			content,
+			content: message_content,
 			image_filename: received_message.image_filename.as_deref(),
 			outgoing: false,
 			anonymous: false,

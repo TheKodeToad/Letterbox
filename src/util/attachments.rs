@@ -7,8 +7,7 @@ pub fn first_image_attachment(
 		attachment
 			.content_type
 			.as_ref()
-			.map(|content_type| content_type.starts_with("image/"))
-			.unwrap_or_default()
+			.is_some_and(|content_type| content_type.starts_with("image/"))
 	})
 }
 
@@ -18,7 +17,7 @@ pub async fn clone_attachment(
 	attachment: &serenity::Attachment,
 ) -> eyre::Result<serenity::CreateAttachment> {
 	let mut result = serenity::CreateAttachment::url(&http, &attachment.url).await?;
-	result.filename = attachment.filename.clone();
+	result.filename.clone_from(&attachment.filename);
 
 	Ok(result)
 }
