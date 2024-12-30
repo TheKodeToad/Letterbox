@@ -4,7 +4,7 @@ use crate::data::sent_messages::insert_sent_message;
 use crate::data::sent_messages::SentMessage;
 use crate::data::threads::get_thread;
 use crate::formatting::message_embed;
-use crate::util::attachments::first_image_attachment;
+use crate::util::attachments::{clone_attachment, first_image_attachment};
 use crate::util::json_error_codes::get_json_error_code;
 use crate::util::json_error_codes::CANNOT_MESSAGE;
 
@@ -52,6 +52,8 @@ pub async fn anon_reply(
 }
 
 async fn create(context: Context<'_>, message: &str, anonymous: bool) -> eyre::Result<()> {
+	context.defer().await?;
+
 	let Some(thread_data) = get_thread(&context.data().pg, context.channel_id().get()).await?
 	else {
 		context
@@ -64,29 +66,22 @@ async fn create(context: Context<'_>, message: &str, anonymous: bool) -> eyre::R
 		return Ok(());
 	};
 
-	context.defer().await?;
-
 	let dm_channel = serenity::ChannelId::new(thread_data.dm_channel_id);
 
-	let image_attachment = if let Context::Prefix(context) = context {
+	let first_image_attachment = if let Context::Prefix(context) = context {
 		first_image_attachment(&context.msg.attachments)
 	} else {
 		None
 	};
 
-	let image_attachment_clone = if let Some(image_attachment) = image_attachment {
-		let mut forwarded_attachment =
-			serenity::CreateAttachment::url(&context.http(), &image_attachment.url).await?;
-		forwarded_attachment
-			.filename
-			.clone_from(&image_attachment.filename);
-
-		Some(forwarded_attachment)
+	let forwarded_attachments = if let Some(image_attachment) = first_image_attachment {
+		let cloned = clone_attachment(context.http(), image_attachment).await?;
+		vec![cloned]
 	} else {
-		None
+		vec![]
 	};
 
-	let image_filename = image_attachment
+	let forwarded_image_filename = first_image_attachment
 		.as_ref()
 		.map(|attachment| attachment.filename.clone());
 
@@ -97,7 +92,7 @@ async fn create(context: Context<'_>, message: &str, anonymous: bool) -> eyre::R
 			message_embed::Options {
 				author: context.author(),
 				content: message,
-				image_filename: image_filename.as_deref(),
+				image_filename: forwarded_image_filename.as_deref(),
 				outgoing: false,
 				anonymous,
 				user_info: false,
@@ -107,10 +102,7 @@ async fn create(context: Context<'_>, message: &str, anonymous: bool) -> eyre::R
 	let forwarded_message_result = dm_channel
 		.send_files(
 			&context,
-			image_attachment_clone
-				.as_ref()
-				.map(|attachment| vec![attachment.clone()])
-				.unwrap_or_default(),
+			forwarded_attachments.clone(),
 			forwarded_message_builder,
 		)
 		.await;
@@ -132,16 +124,14 @@ async fn create(context: Context<'_>, message: &str, anonymous: bool) -> eyre::R
 		message_embed::Options {
 			author: context.author(),
 			content: message,
-			image_filename: image_filename.as_deref(),
+			image_filename: forwarded_image_filename.as_deref(),
 			outgoing: true,
 			anonymous,
 			user_info: true,
 		},
 	));
 
-	if let Some(image_attachment_clone) = image_attachment_clone {
-		source_message_builder = source_message_builder.attachment(image_attachment_clone);
-	}
+	source_message_builder.attachments = forwarded_attachments;
 
 	let source_message_handle = context.send(source_message_builder).await?;
 
@@ -153,7 +143,7 @@ async fn create(context: Context<'_>, message: &str, anonymous: bool) -> eyre::R
 			forwarded_message_id: forwarded_message.id.get(),
 			author_id: context.author().id.get(),
 			anonymous,
-			image_filename,
+			image_filename: forwarded_image_filename,
 		},
 	)
 	.await?;
