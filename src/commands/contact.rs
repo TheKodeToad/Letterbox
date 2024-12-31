@@ -1,8 +1,9 @@
 use poise::serenity_prelude::{self as serenity, Mentionable};
 
 use crate::{
-	data::threads::{get_thread_by_user, insert_thread, Thread},
+	data::threads::{delete_thread, get_thread_by_user, insert_thread, Thread},
 	formatting::{thread_info, user_info_embed},
+	util::json_error_codes::{get_json_error_code, UNKNOWN_CHANNEL},
 };
 
 use super::util::{require_staff, Context};
@@ -27,13 +28,27 @@ pub async fn contact(
 	}
 
 	if let Some(thread) = get_thread_by_user(&context.data().pg, user.id.get()).await? {
-		context
-			.say(format!(
-				"❌ The specified user already has an open thread: {}.",
-				serenity::Mention::Channel(serenity::ChannelId::new(thread.id))
-			))
-			.await?;
-		return Ok(());
+		match serenity::ChannelId::new(thread.id)
+			.to_channel(&context.http())
+			.await
+		{
+			Ok(_) => {
+				context
+					.say(format!(
+						"❌ The specified user already has an open thread: {}.",
+						serenity::Mention::Channel(serenity::ChannelId::new(thread.id))
+					))
+					.await?;
+				return Ok(());
+			}
+			Err(error) => {
+				if let Some(UNKNOWN_CHANNEL) = get_json_error_code(&error) {
+					delete_thread(&context.data().pg, thread.id).await?;
+				} else {
+					return Err(error.into());
+				}
+			}
+		}
 	}
 
 	context.defer_ephemeral().await?;
