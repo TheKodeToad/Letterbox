@@ -19,8 +19,11 @@ pub fn create(config: &Config, options: Options) -> String {
 
 	let mut result = String::new();
 
-	if let Some(role) = config.forum_channel.mention_role_id {
-		writeln!(&mut result, "{}\n", role.mention()).unwrap();
+	// only mention for incoming thread
+	if options.user_id == options.opened.0 {
+		if let Some(role) = config.forum_channel.mention_role_id {
+			writeln!(&mut result, "{}\n", role.mention()).unwrap();
+		}
 	}
 
 	if options.user_id == options.opened.0 {

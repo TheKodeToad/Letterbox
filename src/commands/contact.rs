@@ -27,6 +27,11 @@ pub async fn contact(
 		return Ok(());
 	}
 
+	if context.author().id == user.id {
+		context.say("❌ Opening a thread for yourself is not supported.").await?;
+		return Ok(());
+	}
+
 	if let Some(thread) = get_thread_by_user(&context.data().pg, user.id.get()).await? {
 		match serenity::ChannelId::new(thread.id)
 			.to_channel(&context.http())
