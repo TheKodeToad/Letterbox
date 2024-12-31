@@ -8,37 +8,35 @@ use crate::{
 use super::util::{require_staff, Context};
 
 /// Create a new mod-mail thread.
-#[poise::command(slash_command, prefix_command, guild_only, check = "require_staff")]
+#[poise::command(
+	slash_command,
+	prefix_command,
+	guild_only,
+	check = "require_staff",
+	ephemeral
+)]
 pub async fn contact(
 	context: Context<'_>,
 	#[description = "The user to open a thread for."] user: serenity::User,
 ) -> eyre::Result<()> {
 	if user.bot {
 		context
-			.send(
-				poise::CreateReply::default()
-					.content("❌ Bot users cannot receive direct messages.")
-					.ephemeral(true),
-			)
+			.say("❌ Bot users cannot receive direct messages.")
 			.await?;
 		return Ok(());
 	}
 
 	if let Some(thread) = get_thread_by_user(&context.data().pg, user.id.get()).await? {
 		context
-			.send(
-				poise::CreateReply::default()
-					.content(format!(
-						"❌ The specified user already has an open thread: {}.",
-						serenity::Mention::Channel(serenity::ChannelId::new(thread.id))
-					))
-					.ephemeral(true),
-			)
+			.say(format!(
+				"❌ The specified user already has an open thread: {}.",
+				serenity::Mention::Channel(serenity::ChannelId::new(thread.id))
+			))
 			.await?;
 		return Ok(());
 	}
 
-	context.defer().await?;
+	context.defer_ephemeral().await?;
 
 	let dm_channel = user.create_dm_channel(context.http()).await?;
 
@@ -88,7 +86,7 @@ pub async fn contact(
 
 	context
 		.say(format!(
-			"✅ Thread opened for {}: {}",
+			"✅ Thread opened for {}: {}.",
 			user.mention(),
 			forum_post.mention()
 		))
