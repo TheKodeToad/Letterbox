@@ -23,6 +23,24 @@ pub async fn create(
 		)))
 		.color(serenity::colours::branding::BLURPLE);
 
+
+	if let Some(member) = &member {
+		if let Some(roles) = member.roles(&context.cache) {
+			if !roles.is_empty() {
+				let mut sorted_roles = roles.clone();
+				sorted_roles.sort_by(|a, b| b.position.cmp(&a.position));
+
+				let roles_text = sorted_roles
+					.iter()
+					.map(|role| role.mention().to_string())
+					.collect::<Vec<String>>()
+					.join(" ");
+
+				result = result.field("Roles", roles_text, false);
+			}
+		}
+	}
+
 	let created_at_text = serenity::FormattedTimestamp::new(
 		user.created_at(),
 		Some(serenity::FormattedTimestampStyle::ShortDateTime),
@@ -31,7 +49,7 @@ pub async fn create(
 
 	result = result.field("Account Created At", created_at_text, true);
 
-	if let Some(member) = member {
+	if let Some(member) = &member {
 		let joined_at_text = member
 			.joined_at
 			.map_or("*Unknown Date*".to_string(), |joined_at| {
@@ -43,20 +61,6 @@ pub async fn create(
 			});
 
 		result = result.field("Server Member Since", joined_at_text, true);
-
-		if let Some(roles) = member.roles(&context.cache) {
-			let roles_text = if roles.is_empty() {
-				"*No Roles*".to_string()
-			} else {
-				roles
-					.iter()
-					.map(|role| role.mention().to_string())
-					.collect::<Vec<String>>()
-					.join(" ")
-			};
-
-			result = result.field("Roles", roles_text, false);
-		}
 	}
 
 	Ok(result)
