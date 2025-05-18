@@ -4,9 +4,9 @@ A simplistic, lightweight ModMail ~~bot~~ app for Discord using modern features 
 ## Usage
 You will need a postgres database!
 
-Copy config.toml.example to config.toml and edit as necessary.
-Copy .env.example to .env and edit as necessary.
-Run `cargo run -r`
+- Copy config.toml.example to config.toml and edit as necessary.
+- Copy .env.example to .env and edit as necessary.
+- Run `cargo run -r`
 
 TODO: Nix, docker instructions (help needed)
 
