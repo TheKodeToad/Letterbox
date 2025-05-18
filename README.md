@@ -1,6 +1,15 @@
 # Letterbox
 A simplistic, lightweight ModMail ~~bot~~ app for Discord using modern features like forums. Uses [poise](https://crates.io/crates/poise) under the hood meaning it won't take much memory!
 
+## Usage
+You will need a postgres database!
+
+Copy config.toml.example to config.toml and edit as necessary.
+Copy .env.example to .env and edit as necessary.
+Run `cargo run -r`
+
+TODO: Nix, docker instructions (help needed)
+
 ## Philosophy
 Advanced features like a web panel are not the goal here, nor is making the configuration flexible enough to satisfy absolutely everyone's needs.
 
