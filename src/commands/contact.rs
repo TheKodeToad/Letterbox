@@ -28,7 +28,9 @@ pub async fn contact(
 	}
 
 	if context.author().id == user.id {
-		context.say("❌ Opening a thread for yourself is not supported.").await?;
+		context
+			.say("❌ Opening a thread for yourself is not supported.")
+			.await?;
 		return Ok(());
 	}
 

@@ -6,7 +6,7 @@ use crate::{
 		received_messages::{insert_received_message, ReceivedMessage},
 		threads::{delete_thread, get_thread_by_dm_channel, insert_thread, Thread},
 	},
-	formatting::{message_embed, thread_info, user_info_embed},
+	formatting::{message_embed, thread_info, user_info_embed, wish_dot_com_snapshot},
 	util::{
 		attachments::{clone_attachment, first_image_attachment},
 		json_error_codes::{get_json_error_code, UNKNOWN_CHANNEL},
@@ -65,7 +65,13 @@ async fn handle_impl(
 		create_thread_from(context, message, data).await?
 	};
 
-	let image_attachment = first_image_attachment(&message.attachments);
+	let snapshot = wish_dot_com_snapshot::create(context, message, data.config.server_id).await;
+
+	let image_attachment = message
+		.message_snapshots
+		.first()
+		.map(|snapshot| first_image_attachment(&snapshot.attachments))
+		.unwrap_or_else(|| first_image_attachment(&message.attachments));
 	let image_filename = image_attachment.map(|attachment| attachment.filename.clone());
 	let cloned_image_attachment = if let Some(attachment) = image_attachment {
 		Some(clone_attachment(&context.http, attachment).await?)
@@ -79,7 +85,7 @@ async fn handle_impl(
 			&data.config,
 			message_embed::Options {
 				author: &message.author,
-				content: &message.content,
+				content: snapshot.as_ref().unwrap_or_else(|| &message.content),
 				image_filename: image_filename.as_deref(),
 				outgoing: false,
 				anonymous: false,

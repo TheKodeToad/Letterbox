@@ -23,7 +23,6 @@ pub async fn create(
 		)))
 		.color(serenity::colours::branding::BLURPLE);
 
-
 	if let Some(member) = &member {
 		if let Some(roles) = member.roles(&context.cache) {
 			if !roles.is_empty() {

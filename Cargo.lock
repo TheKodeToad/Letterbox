@@ -1773,8 +1773,7 @@ dependencies = [
 [[package]]
 name = "serenity"
 version = "0.12.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3d72ec4323681bf9a3cabe40fd080abc2435859b502a1b5aa9bf693f125bfa76"
+source = "git+https://github.com/serenity-rs/serenity.git?branch=current#92776b0b6120c8a1054cf139bf12b01984a12301"
 dependencies = [
  "arrayvec",
  "async-trait",
@@ -1786,6 +1785,7 @@ dependencies = [
  "flate2",
  "futures",
  "fxhash",
+ "litemap",
  "mime_guess",
  "parking_lot",
  "percent-encoding",
@@ -1801,6 +1801,7 @@ dependencies = [
  "typemap_rev",
  "typesize",
  "url",
+ "zerofrom",
 ]
 
 [[package]]

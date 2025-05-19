@@ -17,6 +17,9 @@ tokio = { version = "1.42.0", features = [ "rt-multi-thread", "signal" ] }
 tokio-postgres = { version = "0.7.12", features = ["with-chrono-0_4"] }
 toml = "0.8.19"
 
+[patch.crates-io]
+serenity = { git = "https://github.com/serenity-rs/serenity.git", branch = "current"}
+
 [lints.rust]
 unsafe_code = "forbid"
 

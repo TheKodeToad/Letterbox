@@ -15,3 +15,7 @@ pub fn escape(input: &str) -> String {
 
 	result
 }
+
+pub fn quote(input: &str) -> String {
+	"> ".to_string() + &input.replace("\n", "\n> ")
+}
