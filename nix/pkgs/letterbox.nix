@@ -23,7 +23,12 @@ rustPlatform.buildRustPackage rec {
   nativeBuildInputs = [ pkg-config ];
   buildInputs = [ openssl ];
 
-  cargoLock.lockFile = ../../Cargo.lock;
+  cargoLock = {
+    lockFile = ../../Cargo.lock;
+    outputHashes = {
+      "serenity-0.12.4" = "sha256-shf3UD0zg8Aw4cMfGk1ba2GymDe7u/i7A/0MXXinru4=";
+    };
+  };
 
   passthru.cargoToml = lib.importTOML ../../Cargo.toml;
 
