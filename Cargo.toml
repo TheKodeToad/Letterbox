@@ -15,7 +15,7 @@ refinery = { version = "0.8.14", features = [ "tokio-postgres" ] }
 serde = "1.0.215"
 tokio = { version = "1.42.0", features = [ "rt-multi-thread", "signal" ] }
 tokio-postgres = { version = "0.7.12", features = ["with-chrono-0_4"] }
-toml = "0.8.19"
+toml = "0.9.0"
 
 [patch.crates-io]
 serenity = { git = "https://github.com/serenity-rs/serenity.git", rev = "92776b0b6120c8a1054cf139bf12b01984a12301"}
