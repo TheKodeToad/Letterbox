@@ -14,7 +14,7 @@ impl ReceivedMessage {
 		let forwarded_message_id: i64 = row.get("forwarded_message_id");
 		let image_filename: Option<String> = row.get("image_filename");
 
-		ReceivedMessage {
+		Self {
 			id: id as u64,
 			thread_id: thread_id as u64,
 			forwarded_message_id: forwarded_message_id as u64,

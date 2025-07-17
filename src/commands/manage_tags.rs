@@ -1,0 +1,66 @@
+use std::io::{stdout, Write};
+
+use crate::{
+	commands::util::{require_staff, Context},
+	data::tags::{self, get_tag},
+	util::markdown,
+};
+
+/// Set a tag to be used with tag_reply.
+#[poise::command(
+	slash_command,
+	prefix_command,
+	guild_only,
+	check = "require_staff",
+	aliases("st"),
+	ephemeral
+)]
+pub async fn set_tag(
+	context: Context<'_>,
+	#[description = "The name to invoke the tag with."]
+	#[max_length = 100]
+	name: String,
+	#[description = "The content to send when invoking the tag. Include \\n to insert a newline."]
+	#[max_length = 2000]
+	#[rest]
+	content: String,
+) -> eyre::Result<()> {
+	let content = content.replace("\\n", "\n");
+
+	tags::set_tag(&context.data().pg, &name, &content).await?;
+
+	let safe_name = markdown::escape(&name);
+	context
+		.reply(format!(
+			"✅ Set tag named '{safe_name}'. It can be sent with `reply_tag` or deleted with `delete_tag`!"
+		))
+		.await?;
+
+	Ok(())
+}
+
+/// Delete a tag.
+#[poise::command(
+	slash_command,
+	prefix_command,
+	guild_only,
+	check = "require_staff",
+	aliases("dt"),
+	ephemeral
+)]
+pub async fn delete_tag(context: Context<'_>, name: String) -> eyre::Result<()> {
+	let deleted = tags::delete_tag(&context.data().pg, &name).await?;
+
+	let safe_name = markdown::escape(&name);
+	if deleted {
+		context
+			.reply(format!("✅ Deleted tag '{safe_name}'."))
+			.await?;
+	} else {
+		context
+			.reply(format!("❌ Tag named '{safe_name}' does not exist."))
+			.await?;
+	}
+
+	Ok(())
+}

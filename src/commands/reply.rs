@@ -2,11 +2,13 @@ use poise::serenity_prelude as serenity;
 
 use crate::data::sent_messages::insert_sent_message;
 use crate::data::sent_messages::SentMessage;
+use crate::data::tags::get_tag;
 use crate::data::threads::get_thread;
 use crate::formatting::message_embed;
 use crate::util::attachments::{clone_attachment, first_image_attachment};
 use crate::util::json_error_codes::get_json_error_code;
 use crate::util::json_error_codes::CANNOT_MESSAGE;
+use crate::util::markdown;
 
 use super::util::require_staff;
 use super::util::Context;
@@ -29,6 +31,7 @@ pub async fn reply(
 	context: Context<'_>,
 	#[rest]
 	#[description = "The message to send."]
+	// TODO: add a limit
 	message: String,
 ) -> eyre::Result<()> {
 	create(context, &message, false).await
@@ -49,6 +52,64 @@ pub async fn anon_reply(
 	message: String,
 ) -> eyre::Result<()> {
 	create(context, &message, true).await
+}
+
+/// Reply to a mod-mail thread with a tag.
+#[poise::command(
+	slash_command,
+	prefix_command,
+	guild_only,
+	check = "require_staff",
+	aliases("tr", "treply")
+)]
+pub async fn tag_reply(
+	context: Context<'_>,
+	#[rest]
+	#[description = "The tag name."]
+	name: String,
+) -> eyre::Result<()> {
+	create_tag(context, &name, false).await
+}
+
+/// Reply to a mod-mail thread with a tag anonymously.
+#[poise::command(
+	slash_command,
+	prefix_command,
+	guild_only,
+	check = "require_staff",
+	aliases("atr", "atag_reply", "atreply")
+)]
+pub async fn anon_tag_reply(
+	context: Context<'_>,
+	#[rest]
+	#[description = "The tag name."]
+	name: String,
+) -> eyre::Result<()> {
+	create_tag(context, &name, true).await
+}
+
+async fn create_tag(context: Context<'_>, name: &str, anonymous: bool) -> eyre::Result<()> {
+	let tag = get_tag(&context.data().pg, name).await?;
+
+	match tag {
+		Some(message) => {
+			create(context, &message, anonymous).await?;
+		}
+		None => {
+			context
+				.send(
+					poise::CreateReply::default()
+						.content(format!(
+							"❌ Tag named '{}' does not exist.",
+							markdown::escape(name)
+						))
+						.ephemeral(true),
+				)
+				.await?;
+		}
+	}
+
+	Ok(())
 }
 
 async fn create(context: Context<'_>, message: &str, anonymous: bool) -> eyre::Result<()> {

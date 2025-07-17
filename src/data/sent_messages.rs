@@ -18,7 +18,7 @@ impl SentMessage {
 		let anonymous: bool = row.get("anonymous");
 		let image_filename: Option<String> = row.get("image_filename");
 
-		SentMessage {
+		Self {
 			id: id as u64,
 			thread_id: thread_id as u64,
 			author_id: author_id as u64,

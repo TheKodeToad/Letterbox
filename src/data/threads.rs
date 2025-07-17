@@ -16,7 +16,7 @@ impl Thread {
 		let opened_by_id: i64 = row.get("opened_by_id");
 		let created_at: chrono::DateTime<chrono::Utc> = row.get("created_at");
 
-		Thread {
+		Self {
 			id: id as u64,
 			dm_channel_id: dm_channel_id as u64,
 			user_id: user_id as u64,
