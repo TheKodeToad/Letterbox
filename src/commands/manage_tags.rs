@@ -1,8 +1,7 @@
-use std::io::{stdout, Write};
 
 use crate::{
 	commands::util::{require_staff, Context},
-	data::tags::{self, get_tag},
+	data::tags::{self},
 	util::markdown,
 };
 

@@ -1,3 +1,4 @@
+#[allow(clippy::similar_names)]
 use std::path::Path;
 use std::sync::Arc;
 

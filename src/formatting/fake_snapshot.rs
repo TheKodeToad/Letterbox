@@ -4,7 +4,7 @@ use crate::util::markdown;
 
 const HEADER: &str = "↷ *Forwarded*";
 
-pub async fn create(
+pub fn create(
 	context: &serenity::Context,
 	message: &serenity::Message,
 	receiving_guild_id: GuildId,
@@ -45,15 +45,13 @@ pub async fn create(
 		} else {
 			None
 		}
+	} else if let Some(guild_id) = guild_id {
+		guild_id
+			.to_guild_cached(&context)
+			.map(|guild| markdown::escape(&guild.name))
+			.or_else(|| Some("Unknown Server".to_string()))
 	} else {
-		if let Some(guild_id) = guild_id {
-			guild_id
-				.to_guild_cached(&context)
-				.map(|guild| markdown::escape(&guild.name))
-				.or_else(|| Some("Unknown Server".to_string()))
-		} else {
-			None
-		}
+		None
 	};
 
 	let content = if !snapshot.content.is_empty() {
@@ -74,6 +72,6 @@ pub async fn create(
 			message_id.link(channel_id, guild_id),
 		)))
 	} else {
-		Some(markdown::quote(&format!("-# {HEADER}\n{}", content)))
+		Some(markdown::quote(&format!("-# {HEADER}\n{content}")))
 	}
 }
