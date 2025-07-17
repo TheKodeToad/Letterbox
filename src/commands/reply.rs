@@ -1,5 +1,6 @@
 use poise::serenity_prelude as serenity;
 
+use crate::data::sent_messages;
 use crate::data::sent_messages::insert;
 use crate::data::sent_messages::SentMessage;
 use crate::data::tags;
@@ -196,7 +197,7 @@ async fn create(context: Context<'_>, message: &str, anonymous: bool) -> eyre::R
 
 	let source_message_handle = context.send(source_message_builder).await?;
 
-	insert(
+	sent_messages::insert(
 		&context.data().pg,
 		SentMessage {
 			id: source_message_handle.message().await?.id.get(),

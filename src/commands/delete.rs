@@ -75,7 +75,7 @@ async fn delete_impl(context: &Context<'_>, message_id: serenity::MessageId) -> 
 	thread
 		.delete_message(&context.http(), message_id.get())
 		.await?;
-	threads::delete(&context.data().pg, sent_message.id).await?;
+	sent_messages::delete(&context.data().pg, sent_message.id).await?;
 
 	Ok(true)
 }

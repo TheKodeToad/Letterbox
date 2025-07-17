@@ -34,7 +34,7 @@ pub async fn contact(
 		return Ok(());
 	}
 
-	if let Some(thread) = get_by_user(&context.data().pg, user.id.get()).await? {
+	if let Some(thread) = threads::get_by_user(&context.data().pg, user.id.get()).await? {
 		match serenity::ChannelId::new(thread.id)
 			.to_channel(&context.http())
 			.await
