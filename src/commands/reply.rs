@@ -1,7 +1,6 @@
 use poise::serenity_prelude as serenity;
 
 use crate::data::sent_messages;
-use crate::data::sent_messages::insert;
 use crate::data::sent_messages::SentMessage;
 use crate::data::tags;
 use crate::data::threads;

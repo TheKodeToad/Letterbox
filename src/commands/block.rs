@@ -42,7 +42,9 @@ async fn block_impl(context: Context<'_>, user: serenity::User, silent: bool) ->
 		return Ok(());
 	}
 
-	if blocked_users::has(&context.data().pg, user.id.get()).await? {
+	let blocked = blocked_users::add(&context.data().pg, user.id.get()).await?;
+
+	if !blocked {
 		context
 			.send(
 				poise::CreateReply::default()
@@ -52,8 +54,6 @@ async fn block_impl(context: Context<'_>, user: serenity::User, silent: bool) ->
 			.await?;
 		return Ok(());
 	}
-
-	blocked_users::add(&context.data().pg, user.id.get()).await?;
 
 	if !silent {
 		context.defer().await?;

@@ -46,7 +46,9 @@ async fn unblock_impl(
 		return Ok(());
 	}
 
-	if !blocked_users::has(&context.data().pg, user.id.get()).await? {
+	let unblocked = blocked_users::remove(&context.data().pg, user.id.get()).await?;
+
+	if !unblocked {
 		context
 			.send(
 				poise::CreateReply::default()
@@ -56,8 +58,6 @@ async fn unblock_impl(
 			.await?;
 		return Ok(());
 	}
-
-	blocked_users::remove(&context.data().pg, user.id.get()).await?;
 
 	if !silent {
 		context.defer().await?;

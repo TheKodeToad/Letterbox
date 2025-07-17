@@ -1,9 +1,6 @@
 use poise::serenity_prelude as serenity;
 
-use crate::{
-	data::sent_messages::{self, get_by_forwarded},
-	Data,
-};
+use crate::{data::sent_messages, Data};
 
 pub async fn handle(
 	context: &serenity::Context,

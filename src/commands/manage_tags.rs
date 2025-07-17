@@ -30,7 +30,7 @@ pub async fn set_tag(
 	let safe_name = markdown::escape(&name);
 	context
 		.reply(format!(
-			"✅ Set tag named '{safe_name}'. It can be sent with `reply_tag` or deleted with `delete_tag`!"
+			"✅ Set tag named '{safe_name}'. It can be sent with `tag_reply` or deleted with `delete_tag`!"
 		))
 		.await?;
 

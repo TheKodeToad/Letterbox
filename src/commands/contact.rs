@@ -1,7 +1,7 @@
 use poise::serenity_prelude::{self as serenity, Mentionable};
 
 use crate::{
-	data::threads::{self, get_by_user, Thread},
+	data::threads::{self, Thread},
 	formatting::{thread_info, user_info_embed},
 	util::json_error_codes::{get_json_error_code, UNKNOWN_CHANNEL},
 };
