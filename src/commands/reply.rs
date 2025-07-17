@@ -1,9 +1,9 @@
 use poise::serenity_prelude as serenity;
 
-use crate::data::sent_messages::insert_sent_message;
+use crate::data::sent_messages::insert;
 use crate::data::sent_messages::SentMessage;
-use crate::data::tags::get_tag;
-use crate::data::threads::get_thread;
+use crate::data::tags;
+use crate::data::threads;
 use crate::formatting::message_embed;
 use crate::util::attachments::{clone_attachment, first_image_attachment};
 use crate::util::json_error_codes::get_json_error_code;
@@ -89,7 +89,7 @@ pub async fn anon_tag_reply(
 }
 
 async fn create_tag(context: Context<'_>, name: &str, anonymous: bool) -> eyre::Result<()> {
-	let tag = get_tag(&context.data().pg, name).await?;
+	let tag = tags::get(&context.data().pg, name).await?;
 
 	match tag {
 		Some(message) => {
@@ -115,7 +115,7 @@ async fn create_tag(context: Context<'_>, name: &str, anonymous: bool) -> eyre::
 async fn create(context: Context<'_>, message: &str, anonymous: bool) -> eyre::Result<()> {
 	context.defer().await?;
 
-	let Some(thread_data) = get_thread(&context.data().pg, context.channel_id().get()).await?
+	let Some(thread_data) = threads::get(&context.data().pg, context.channel_id().get()).await?
 	else {
 		context
 			.send(
@@ -196,7 +196,7 @@ async fn create(context: Context<'_>, message: &str, anonymous: bool) -> eyre::R
 
 	let source_message_handle = context.send(source_message_builder).await?;
 
-	insert_sent_message(
+	insert(
 		&context.data().pg,
 		SentMessage {
 			id: source_message_handle.message().await?.id.get(),

@@ -1,4 +1,4 @@
-pub async fn get_tag(pg: &tokio_postgres::Client, name: &str) -> eyre::Result<Option<String>> {
+pub async fn get(pg: &tokio_postgres::Client, name: &str) -> eyre::Result<Option<String>> {
 	let rows = pg
 		.query(
 			r#"
@@ -18,11 +18,7 @@ pub async fn get_tag(pg: &tokio_postgres::Client, name: &str) -> eyre::Result<Op
 	}
 }
 
-pub async fn set_tag(
-	pg: &tokio_postgres::Client,
-	name: &String,
-	content: &String,
-) -> eyre::Result<()> {
+pub async fn set(pg: &tokio_postgres::Client, name: &String, content: &String) -> eyre::Result<()> {
 	pg.query(
 		r#"
 			INSERT INTO "tags" VALUES ($1, $2)
@@ -35,7 +31,7 @@ pub async fn set_tag(
 	Ok(())
 }
 
-pub async fn delete_tag(pg: &tokio_postgres::Client, name: &String) -> eyre::Result<bool> {
+pub async fn delete(pg: &tokio_postgres::Client, name: &String) -> eyre::Result<bool> {
 	let rows = pg
 		.query(
 			// RETURNING needed otherwise we can't check with tokio-postgres (AFAIK)

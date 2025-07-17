@@ -1,7 +1,6 @@
 use poise::serenity_prelude as serenity;
 
-use crate::data::blocked_users::is_user_blocked;
-use crate::data::blocked_users::unblock_user;
+use crate::data::blocked_users;
 use crate::util::markdown;
 
 use super::util::require_staff;
@@ -47,7 +46,7 @@ async fn unblock_impl(
 		return Ok(());
 	}
 
-	if !is_user_blocked(&context.data().pg, user.id.get()).await? {
+	if !blocked_users::has(&context.data().pg, user.id.get()).await? {
 		context
 			.send(
 				poise::CreateReply::default()
@@ -58,7 +57,7 @@ async fn unblock_impl(
 		return Ok(());
 	}
 
-	unblock_user(&context.data().pg, user.id.get()).await?;
+	blocked_users::remove(&context.data().pg, user.id.get()).await?;
 
 	if !silent {
 		context.defer().await?;

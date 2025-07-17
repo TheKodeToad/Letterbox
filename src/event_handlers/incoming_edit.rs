@@ -1,6 +1,10 @@
 use poise::serenity_prelude as serenity;
 
-use crate::{data::received_messages::get_received_message, formatting::message_embed, Data};
+use crate::{
+	data::received_messages::{self},
+	formatting::message_embed,
+	Data,
+};
 
 pub async fn handle(
 	context: &serenity::Context,
@@ -23,7 +27,7 @@ pub async fn handle(
 		return Ok(());
 	};
 
-	let Some(received_message) = get_received_message(&data.pg, message.id.get()).await? else {
+	let Some(received_message) = received_messages::get(&data.pg, message.id.get()).await? else {
 		return Ok(());
 	};
 

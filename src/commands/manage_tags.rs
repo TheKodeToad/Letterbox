@@ -1,4 +1,3 @@
-
 use crate::{
 	commands::util::{require_staff, Context},
 	data::tags::{self},
@@ -26,7 +25,7 @@ pub async fn set_tag(
 ) -> eyre::Result<()> {
 	let content = content.replace("\\n", "\n");
 
-	tags::set_tag(&context.data().pg, &name, &content).await?;
+	tags::set(&context.data().pg, &name, &content).await?;
 
 	let safe_name = markdown::escape(&name);
 	context
@@ -48,7 +47,7 @@ pub async fn set_tag(
 	ephemeral
 )]
 pub async fn delete_tag(context: Context<'_>, name: String) -> eyre::Result<()> {
-	let deleted = tags::delete_tag(&context.data().pg, &name).await?;
+	let deleted = tags::delete(&context.data().pg, &name).await?;
 
 	let safe_name = markdown::escape(&name);
 	if deleted {

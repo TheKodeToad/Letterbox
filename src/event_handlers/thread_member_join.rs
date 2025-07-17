@@ -1,6 +1,9 @@
 use poise::serenity_prelude as serenity;
 
-use crate::{data::threads::get_thread_by_user, Data};
+use crate::{
+	data::threads::{self},
+	Data,
+};
 
 pub async fn handle(
 	context: &serenity::Context,
@@ -11,7 +14,7 @@ pub async fn handle(
 		return Ok(());
 	}
 
-	let Some(thread_data) = get_thread_by_user(&data.pg, member.user.id.get()).await? else {
+	let Some(thread_data) = threads::get_by_user(&data.pg, member.user.id.get()).await? else {
 		return Ok(());
 	};
 

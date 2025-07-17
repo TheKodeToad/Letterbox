@@ -1,7 +1,7 @@
 use poise::serenity_prelude::{self as serenity, Mentionable};
 
 use crate::{
-	data::threads::{delete_thread, get_thread_by_user, insert_thread, Thread},
+	data::threads::{self, get_by_user, Thread},
 	formatting::{thread_info, user_info_embed},
 	util::json_error_codes::{get_json_error_code, UNKNOWN_CHANNEL},
 };
@@ -34,7 +34,7 @@ pub async fn contact(
 		return Ok(());
 	}
 
-	if let Some(thread) = get_thread_by_user(&context.data().pg, user.id.get()).await? {
+	if let Some(thread) = get_by_user(&context.data().pg, user.id.get()).await? {
 		match serenity::ChannelId::new(thread.id)
 			.to_channel(&context.http())
 			.await
@@ -50,7 +50,7 @@ pub async fn contact(
 			}
 			Err(error) => {
 				if let Some(UNKNOWN_CHANNEL) = get_json_error_code(&error) {
-					delete_thread(&context.data().pg, thread.id).await?;
+					threads::delete(&context.data().pg, thread.id).await?;
 				} else {
 					return Err(error.into());
 				}
@@ -94,7 +94,7 @@ pub async fn contact(
 		.create_forum_post(&context.http(), forum_post_builder)
 		.await?;
 
-	insert_thread(
+	threads::insert(
 		&context.data().pg,
 		Thread {
 			id: forum_post.id.get(),

@@ -5,7 +5,7 @@ use poise::{
 };
 
 use crate::{
-	data::{sent_messages::get_sent_message, threads::get_thread},
+	data::{sent_messages, threads},
 	formatting::message_embed,
 };
 
@@ -74,7 +74,7 @@ async fn create(
 	message_id: serenity::MessageId,
 	content: String,
 ) -> eyre::Result<bool> {
-	let Some(sent_message) = get_sent_message(&ctx.data().pg, message_id.get()).await? else {
+	let Some(sent_message) = sent_messages::get(&ctx.data().pg, message_id.get()).await? else {
 		ctx.say("❌ This message was not sent with the reply command or the thread was closed.")
 			.await?;
 		return Ok(false);
@@ -85,7 +85,7 @@ async fn create(
 		return Ok(false);
 	}
 
-	let dm_channel_id = get_thread(&ctx.data().pg, sent_message.thread_id)
+	let dm_channel_id = threads::get(&ctx.data().pg, sent_message.thread_id)
 		.await?
 		.ok_or_eyre("Thread went missing!")?
 		.dm_channel_id;

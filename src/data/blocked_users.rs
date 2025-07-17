@@ -1,6 +1,6 @@
 #![allow(clippy::cast_possible_wrap)]
 
-pub async fn block_user(pg: &tokio_postgres::Client, id: u64) -> eyre::Result<()> {
+pub async fn add(pg: &tokio_postgres::Client, id: u64) -> eyre::Result<()> {
 	pg.execute(
 		r#"
 			INSERT INTO "blocked_users" ("id")
@@ -14,7 +14,7 @@ pub async fn block_user(pg: &tokio_postgres::Client, id: u64) -> eyre::Result<()
 	Ok(())
 }
 
-pub async fn unblock_user(pg: &tokio_postgres::Client, id: u64) -> eyre::Result<()> {
+pub async fn remove(pg: &tokio_postgres::Client, id: u64) -> eyre::Result<()> {
 	pg.execute(
 		r#"
 			DELETE FROM "blocked_users"
@@ -27,7 +27,7 @@ pub async fn unblock_user(pg: &tokio_postgres::Client, id: u64) -> eyre::Result<
 	Ok(())
 }
 
-pub async fn is_user_blocked(pg: &tokio_postgres::Client, id: u64) -> eyre::Result<bool> {
+pub async fn has(pg: &tokio_postgres::Client, id: u64) -> eyre::Result<bool> {
 	let rows = pg
 		.query(
 			r#"

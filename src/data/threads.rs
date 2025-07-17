@@ -26,7 +26,7 @@ impl Thread {
 	}
 }
 
-pub async fn get_thread(pg: &tokio_postgres::Client, id: u64) -> eyre::Result<Option<Thread>> {
+pub async fn get(pg: &tokio_postgres::Client, id: u64) -> eyre::Result<Option<Thread>> {
 	let rows = pg
 		.query(
 			r#"
@@ -46,7 +46,7 @@ pub async fn get_thread(pg: &tokio_postgres::Client, id: u64) -> eyre::Result<Op
 	}
 }
 
-pub async fn get_thread_by_dm_channel(
+pub async fn get_by_dm(
 	pg: &tokio_postgres::Client,
 	dm_channel_id: u64,
 ) -> eyre::Result<Option<Thread>> {
@@ -69,7 +69,7 @@ pub async fn get_thread_by_dm_channel(
 	}
 }
 
-pub async fn get_thread_by_user(
+pub async fn get_by_user(
 	pg: &tokio_postgres::Client,
 	user_id: u64,
 ) -> eyre::Result<Option<Thread>> {
@@ -92,7 +92,7 @@ pub async fn get_thread_by_user(
 	}
 }
 
-pub async fn insert_thread(pg: &tokio_postgres::Client, thread: Thread) -> eyre::Result<()> {
+pub async fn insert(pg: &tokio_postgres::Client, thread: Thread) -> eyre::Result<()> {
 	pg.query(
 		r#"
 			INSERT INTO "threads" ("id", "dm_channel_id", "user_id", "opened_by_id", "created_at")
@@ -111,7 +111,7 @@ pub async fn insert_thread(pg: &tokio_postgres::Client, thread: Thread) -> eyre:
 	Ok(())
 }
 
-pub async fn delete_thread(pg: &tokio_postgres::Client, id: u64) -> eyre::Result<()> {
+pub async fn delete(pg: &tokio_postgres::Client, id: u64) -> eyre::Result<()> {
 	pg.query(
 		r#"
 			DELETE FROM "threads"

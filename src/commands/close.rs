@@ -4,8 +4,7 @@ use poise::serenity_prelude::Mentionable;
 
 use super::util::require_staff;
 use super::util::Context;
-use crate::data::threads::delete_thread;
-use crate::data::threads::get_thread;
+use crate::data::threads;
 use crate::formatting::thread_info;
 use crate::util::markdown;
 
@@ -46,7 +45,7 @@ pub async fn silent_close(context: Context<'_>) -> eyre::Result<()> {
 }
 
 async fn close_impl(context: Context<'_>, silent: bool, anonymous: bool) -> eyre::Result<()> {
-	let Some(thread_data) = get_thread(&context.data().pg, context.channel_id().get()).await?
+	let Some(thread_data) = threads::get(&context.data().pg, context.channel_id().get()).await?
 	else {
 		context
 			.send(
@@ -62,7 +61,7 @@ async fn close_impl(context: Context<'_>, silent: bool, anonymous: bool) -> eyre
 
 	context.defer().await?;
 
-	delete_thread(&context.data().pg, context.channel_id().get()).await?;
+	threads::delete(&context.data().pg, context.channel_id().get()).await?;
 
 	let mut dm_channel_notification = if anonymous {
 		"⛔ Thread closed.".to_string()

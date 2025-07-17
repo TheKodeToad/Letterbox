@@ -1,15 +1,13 @@
 use poise::serenity_prelude as serenity;
 
-use crate::{data::sent_messages::get_sent_message_by_forwarded_message, Data};
+use crate::{data::sent_messages::get_by_forwarded, Data};
 
 pub async fn handle(
 	context: &serenity::Context,
 	reaction: &serenity::Reaction,
 	data: &Data,
 ) -> eyre::Result<()> {
-	let Some(sent_message) =
-		get_sent_message_by_forwarded_message(&data.pg, reaction.message_id.get()).await?
-	else {
+	let Some(sent_message) = get_by_forwarded(&data.pg, reaction.message_id.get()).await? else {
 		return Ok(());
 	};
 

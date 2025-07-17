@@ -23,10 +23,7 @@ impl ReceivedMessage {
 	}
 }
 
-pub async fn get_received_message(
-	pg: &tokio_postgres::Client,
-	id: u64,
-) -> eyre::Result<Option<ReceivedMessage>> {
+pub async fn get(pg: &tokio_postgres::Client, id: u64) -> eyre::Result<Option<ReceivedMessage>> {
 	let rows = pg
 		.query(
 			r#"
@@ -47,10 +44,7 @@ pub async fn get_received_message(
 	}
 }
 
-pub async fn insert_received_message(
-	pg: &tokio_postgres::Client,
-	message: ReceivedMessage,
-) -> eyre::Result<()> {
+pub async fn insert(pg: &tokio_postgres::Client, message: ReceivedMessage) -> eyre::Result<()> {
 	pg.execute(
 		r#"
 			INSERT INTO "received_messages" ("id", "thread_id", "forwarded_message_id", "image_filename")

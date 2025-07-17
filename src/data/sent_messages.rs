@@ -29,10 +29,7 @@ impl SentMessage {
 	}
 }
 
-pub async fn get_sent_message(
-	pg: &tokio_postgres::Client,
-	id: u64,
-) -> eyre::Result<Option<SentMessage>> {
+pub async fn get(pg: &tokio_postgres::Client, id: u64) -> eyre::Result<Option<SentMessage>> {
 	let rows = pg
 		.query(
 			r#"
@@ -52,7 +49,7 @@ pub async fn get_sent_message(
 	}
 }
 
-pub async fn get_sent_message_by_forwarded_message(
+pub async fn get_by_forwarded(
 	pg: &tokio_postgres::Client,
 	forwarded_message_id: u64,
 ) -> eyre::Result<Option<SentMessage>> {
@@ -76,10 +73,7 @@ pub async fn get_sent_message_by_forwarded_message(
 	}
 }
 
-pub async fn insert_sent_message(
-	pg: &tokio_postgres::Client,
-	message: SentMessage,
-) -> eyre::Result<()> {
+pub async fn insert(pg: &tokio_postgres::Client, message: SentMessage) -> eyre::Result<()> {
 	pg.execute(
 		r#"
 			INSERT INTO "sent_messages" ("id", "thread_id", "forwarded_message_id", "author_id", "anonymous", "image_filename")
@@ -99,7 +93,7 @@ pub async fn insert_sent_message(
 	Ok(())
 }
 
-pub async fn delete_sent_message(pg: &tokio_postgres::Client, id: u64) -> eyre::Result<()> {
+pub async fn delete(pg: &tokio_postgres::Client, id: u64) -> eyre::Result<()> {
 	pg.execute(
 		r#"
 			DELETE FROM "sent_messages"

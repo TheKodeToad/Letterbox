@@ -2,9 +2,9 @@ use poise::serenity_prelude as serenity;
 
 use crate::{
 	data::{
-		blocked_users::is_user_blocked,
-		received_messages::{insert_received_message, ReceivedMessage},
-		threads::{delete_thread, get_thread_by_dm_channel, insert_thread, Thread},
+		blocked_users::{self},
+		received_messages::{self, ReceivedMessage},
+		threads::{self, Thread},
 	},
 	formatting::{fake_snapshot, message_embed, thread_info, user_info_embed},
 	util::{
@@ -53,12 +53,12 @@ async fn handle_impl(
 		return Ok(());
 	}
 
-	let existing_thread = get_thread_by_dm_channel(&data.pg, message.channel_id.get()).await?;
+	let existing_thread = threads::get_by_dm(&data.pg, message.channel_id.get()).await?;
 
 	let mut thread = if let Some(existing_thread) = existing_thread {
 		serenity::ChannelId::new(existing_thread.id)
 	} else {
-		if is_user_blocked(&data.pg, message.author.id.get()).await? {
+		if blocked_users::has(&data.pg, message.author.id.get()).await? {
 			return Ok(());
 		}
 
@@ -105,11 +105,11 @@ async fn handle_impl(
 		Err(err) => {
 			// matching all errors could result in a thread being erroneosly deleted (which is irreversible)
 			if let Some(UNKNOWN_CHANNEL) = get_json_error_code(&err) {
-				if is_user_blocked(&data.pg, message.author.id.get()).await? {
+				if blocked_users::has(&data.pg, message.author.id.get()).await? {
 					return Ok(());
 				}
 
-				delete_thread(&data.pg, thread.get()).await?;
+				threads::delete(&data.pg, thread.get()).await?;
 
 				thread = create_thread_from(context, message, data).await?;
 
@@ -122,7 +122,7 @@ async fn handle_impl(
 		}
 	};
 
-	insert_received_message(
+	received_messages::insert(
 		&data.pg,
 		ReceivedMessage {
 			id: message.id.get(),
@@ -173,7 +173,7 @@ async fn create_thread_from(
 		.id
 		.create_forum_post(&context.http, forum_post_builder)
 		.await?;
-	insert_thread(
+	threads::insert(
 		&data.pg,
 		Thread {
 			id: forum_post.id.get(),
