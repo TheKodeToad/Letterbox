@@ -28,7 +28,7 @@ pub fn commands() -> Vec<poise::Command<crate::Data, eyre::Error>> {
 		block::silent_block(),
 		unblock::unblock(),
 		unblock::silent_unblock(),
-		manage_tags::set_tag(),
-		manage_tags::delete_tag(),
+		manage_tags::tag_set(),
+		manage_tags::tag_delete(),
 	]
 }

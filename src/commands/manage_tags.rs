@@ -13,7 +13,7 @@ use crate::{
 	aliases("st"),
 	ephemeral
 )]
-pub async fn set_tag(
+pub async fn tag_set(
 	context: Context<'_>,
 	#[description = "The name to invoke the tag with."]
 	#[max_length = 100]
@@ -46,7 +46,7 @@ pub async fn set_tag(
 	aliases("dt"),
 	ephemeral
 )]
-pub async fn delete_tag(context: Context<'_>, name: String) -> eyre::Result<()> {
+pub async fn tag_delete(context: Context<'_>, name: String) -> eyre::Result<()> {
 	let deleted = tags::delete(&context.data().pg, &name).await?;
 
 	let safe_name = markdown::escape(&name);
