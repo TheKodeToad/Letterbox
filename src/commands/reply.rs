@@ -100,7 +100,7 @@ async fn create_tag(context: Context<'_>, name: &str, anonymous: bool) -> eyre::
 				.send(
 					poise::CreateReply::default()
 						.content(format!(
-							"❌ Tag named '{}' does not exist.",
+							"❌ Tag named **{}** cannot be found.",
 							markdown::escape(name)
 						))
 						.ephemeral(true),

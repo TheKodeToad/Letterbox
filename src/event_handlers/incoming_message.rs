@@ -185,7 +185,7 @@ async fn create_thread_from(
 	)
 	.await?;
 
-	let mut thread_open_message = "🧵 Started a new thread.".to_string();
+	let mut thread_open_message = "ℹ️ Started a new thread!".to_string();
 
 	if let Some(suffix) = &data.config.messages.thread_open {
 		thread_open_message.push('\n');

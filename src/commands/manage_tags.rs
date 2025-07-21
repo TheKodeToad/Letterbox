@@ -30,7 +30,7 @@ pub async fn set_tag(
 	let safe_name = markdown::escape(&name);
 	context
 		.say(format!(
-			"✅ Set tag named '{safe_name}'. It can be sent with `tag_reply` or deleted with `delete_tag`!"
+			"✅ Set tag **{safe_name}**! It can be sent with `tag_reply` or deleted with `delete_tag`."
 		))
 		.await?;
 
@@ -52,11 +52,11 @@ pub async fn delete_tag(context: Context<'_>, name: String) -> eyre::Result<()> 
 	let safe_name = markdown::escape(&name);
 	if deleted {
 		context
-			.say(format!("✅ Deleted tag '{safe_name}'."))
+			.say(format!("✅ Deleted tag **{safe_name}**!"))
 			.await?;
 	} else {
 		context
-			.say(format!("❌ Tag named '{safe_name}' does not exist."))
+			.say(format!("❌ Tag **{safe_name}** does not exist."))
 			.await?;
 	}
 
