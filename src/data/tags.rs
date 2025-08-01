@@ -18,6 +18,22 @@ pub async fn get(pg: &tokio_postgres::Client, name: &str) -> eyre::Result<Option
 	}
 }
 
+pub async fn search(pg: &tokio_postgres::Client, filter: &str) -> eyre::Result<Vec<String>> {
+	let rows = pg
+		.query(
+			r#"
+				SELECT "name" FROM "tags"
+				WHERE position($1 in "name") > 0
+				ORDER BY "name"
+				LIMIT 25
+			"#,
+			&[&filter],
+		)
+		.await?;
+
+	Ok(rows.iter().map(|row| row.get("name")).collect())
+}
+
 pub async fn set(pg: &tokio_postgres::Client, name: &String, content: &String) -> eyre::Result<()> {
 	pg.execute(
 		r#"

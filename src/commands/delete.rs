@@ -45,7 +45,7 @@ pub async fn delete_context_menu(
 	message: serenity::Message,
 ) -> eyre::Result<()> {
 	if delete_impl(&context, message.id).await? {
-		context.say("✅ Deleted reply.").await?;
+		context.say("✅ Deleted reply!").await?;
 	}
 
 	Ok(())

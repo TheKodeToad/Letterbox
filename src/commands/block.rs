@@ -61,7 +61,7 @@ async fn block_impl(context: Context<'_>, user: serenity::User, silent: bool) ->
 		user.direct_message(
 			&context.http(),
 			serenity::CreateMessage::new()
-				.content("🚫 You have been blocked from creating threads.".to_string()),
+				.content("ℹ️ You have been blocked from creating threads!".to_string()),
 		)
 		.await
 		.ok();

@@ -64,7 +64,7 @@ async fn unblock_impl(
 
 		user.direct_message(
 			&context.http(),
-			serenity::CreateMessage::new().content("⛓️‍💥 You have been unblocked.".to_string()),
+			serenity::CreateMessage::new().content("ℹ️ You have been unblocked!".to_string()),
 		)
 		.await
 		.ok();

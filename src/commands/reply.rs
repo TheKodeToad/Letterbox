@@ -10,8 +10,8 @@ use crate::util::json_error_codes::get_json_error_code;
 use crate::util::json_error_codes::CANNOT_MESSAGE;
 use crate::util::markdown;
 
-use super::util::require_staff;
 use super::util::Context;
+use super::util::{complete_tags, require_staff};
 
 const CANNOT_MESSAGE_ERROR: &str =
 	"❌ Cannot currently send messages to the user. This is most likely because:
@@ -66,6 +66,7 @@ pub async fn tag_reply(
 	context: Context<'_>,
 	#[rest]
 	#[description = "The tag name."]
+	#[autocomplete = "complete_tags"]
 	name: String,
 ) -> eyre::Result<()> {
 	create_tag(context, &name, false).await
@@ -100,7 +101,7 @@ async fn create_tag(context: Context<'_>, name: &str, anonymous: bool) -> eyre::
 				.send(
 					poise::CreateReply::default()
 						.content(format!(
-							"❌ Tag named '{}' does not exist.",
+							"❌ Tag named **{}** cannot be found.",
 							markdown::escape(name)
 						))
 						.ephemeral(true),
