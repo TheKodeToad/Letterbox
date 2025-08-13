@@ -3,6 +3,7 @@ mod close;
 mod contact;
 mod delete;
 mod edit;
+mod help;
 mod info;
 mod manage_tags;
 mod reply;
@@ -12,6 +13,7 @@ mod util;
 pub fn commands() -> Vec<poise::Command<crate::Data, eyre::Error>> {
 	vec![
 		info::info(),
+		help::help(),
 		reply::reply(),
 		reply::anon_reply(),
 		reply::tag_reply(),
