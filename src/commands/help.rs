@@ -7,7 +7,7 @@ use crate::commands::util::Context;
 #[poise::command(slash_command, prefix_command, track_edits)]
 pub async fn help(
 	ctx: Context<'_>,
-	#[description = "Individual command to show"] command: Option<String>,
+	#[description = "Individual command to show."] command: Option<String>,
 ) -> Result<()> {
 	builtins::help(
 		ctx,

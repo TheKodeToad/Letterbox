@@ -30,7 +30,7 @@ struct EditDialog {
 pub async fn edit(
 	ctx: PrefixContext<'_>,
 	#[rest]
-	#[description = "The new message content"]
+	#[description = "The new message content."]
 	content: String,
 ) -> eyre::Result<()> {
 	let Some(serenity::MessageReference {
