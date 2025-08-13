@@ -1,10 +1,10 @@
 use eyre::Result;
 use poise::{builtins, samples::HelpConfiguration};
 
-use crate::commands::util::Context;
+use crate::commands::util::{require_staff, Context};
 
 /// View the help menu.
-#[poise::command(slash_command, prefix_command, track_edits)]
+#[poise::command(slash_command, prefix_command, check = "require_staff", track_edits)]
 pub async fn help(
 	ctx: Context<'_>,
 	#[description = "Individual command to show."] command: Option<String>,
