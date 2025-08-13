@@ -84,6 +84,7 @@ pub async fn anon_tag_reply(
 	context: Context<'_>,
 	#[rest]
 	#[description = "The tag name."]
+	#[autocomplete = "complete_tags"]
 	name: String,
 ) -> eyre::Result<()> {
 	create_tag(context, &name, true).await

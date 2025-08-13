@@ -1,6 +1,6 @@
 #[allow(clippy::similar_names)]
 use std::path::Path;
-use std::sync::Arc;
+use std::{sync::Arc, time::Duration};
 
 use commands::commands;
 use config::Config;
@@ -8,7 +8,7 @@ use data::migrations;
 use error_handler::handle_error;
 use event_handlers::handle_event;
 use log::warn;
-use poise::serenity_prelude as serenity;
+use poise::{serenity_prelude as serenity, EditTracker};
 use tokio::signal::ctrl_c;
 #[cfg(target_family = "unix")]
 use tokio::signal::unix::{signal, SignalKind};
@@ -48,6 +48,9 @@ async fn main() -> eyre::Result<()> {
 			dynamic_prefix: Some(|context| {
 				Box::pin(async move { Ok(Some(context.data.config.prefix.clone())) })
 			}),
+			edit_tracker: Some(Arc::from(EditTracker::for_timespan(Duration::from_secs(
+				60,
+			)))),
 			..Default::default()
 		},
 		event_handler: |context, event, _framework, data| {

@@ -10,7 +10,8 @@ use crate::commands::util::{require_staff, Context};
 	prefix_command,
 	guild_only,
 	ephemeral,
-	check = "require_staff"
+	check = "require_staff",
+	track_edits
 )]
 pub async fn info(context: Context<'_>) -> eyre::Result<()> {
 	let version = env!("CARGO_PKG_VERSION");
