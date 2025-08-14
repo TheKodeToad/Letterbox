@@ -2,8 +2,7 @@ use eyre::eyre;
 use poise::serenity_prelude as serenity;
 use poise::serenity_prelude::Mentionable;
 
-use super::util::require_staff;
-use super::util::Context;
+use super::super::util::{require_staff, Context};
 use crate::data::threads;
 use crate::formatting::thread_info;
 use crate::util::markdown;

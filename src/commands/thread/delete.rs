@@ -4,9 +4,7 @@ use poise::serenity_prelude as serenity;
 use crate::data::sent_messages;
 use crate::data::threads;
 
-use super::util::require_staff;
-use super::util::Context;
-use super::util::PrefixContext;
+use super::super::util::{require_staff, Context, PrefixContext};
 
 /// Delete a mod-mail reply.
 #[poise::command(

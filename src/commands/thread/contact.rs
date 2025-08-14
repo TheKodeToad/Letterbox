@@ -6,7 +6,7 @@ use crate::{
 	util::json_error_codes::{get_json_error_code, UNKNOWN_CHANNEL},
 };
 
-use super::util::{require_staff, Context};
+use super::super::util::{require_staff, Context};
 
 /// Create a new mod-mail thread.
 #[poise::command(

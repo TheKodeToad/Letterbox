@@ -1,36 +1,29 @@
-mod block;
-mod close;
-mod contact;
-mod delete;
-mod edit;
-mod help;
-mod info;
-mod manage_tags;
-mod reply;
-mod unblock;
+mod general;
+mod meta;
+mod thread;
 mod util;
 
 pub fn commands() -> Vec<poise::Command<crate::Data, eyre::Error>> {
 	vec![
-		info::info(),
-		help::help(),
-		reply::reply(),
-		reply::anon_reply(),
-		reply::tag_reply(),
-		reply::anon_tag_reply(),
-		delete::delete(),
-		delete::delete_context_menu(),
-		edit::edit(),
-		edit::edit_context_menu(),
-		close::close(),
-		close::anon_close(),
-		close::silent_close(),
-		contact::contact(),
-		block::block(),
-		block::silent_block(),
-		unblock::unblock(),
-		unblock::silent_unblock(),
-		manage_tags::tag_set(),
-		manage_tags::tag_delete(),
+		meta::info::info(),
+		meta::help::help(),
+		general::block::block(),
+		general::block::silent_block(),
+		general::unblock::unblock(),
+		general::unblock::silent_unblock(),
+		general::manage_tags::tag_set(),
+		general::manage_tags::tag_delete(),
+		thread::reply::reply(),
+		thread::reply::anon_reply(),
+		thread::reply::tag_reply(),
+		thread::reply::anon_tag_reply(),
+		thread::delete::delete(),
+		thread::delete::delete_context_menu(),
+		thread::edit::edit(),
+		thread::edit::edit_context_menu(),
+		thread::close::close(),
+		thread::close::anon_close(),
+		thread::close::silent_close(),
+		thread::contact::contact(),
 	]
 }
