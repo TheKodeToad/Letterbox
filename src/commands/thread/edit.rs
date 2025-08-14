@@ -9,8 +9,7 @@ use crate::{
 	formatting::message_embed,
 };
 
-use super::util::PrefixContext;
-use super::util::{require_staff, ApplicationContext, Context};
+use super::super::util::{require_staff, ApplicationContext, Context, PrefixContext};
 
 #[derive(poise::Modal)]
 #[name = "Edit Message"]

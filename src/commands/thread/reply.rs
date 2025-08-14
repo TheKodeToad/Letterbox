@@ -10,8 +10,7 @@ use crate::util::json_error_codes::get_json_error_code;
 use crate::util::json_error_codes::CANNOT_MESSAGE;
 use crate::util::markdown;
 
-use super::util::Context;
-use super::util::{complete_tags, require_staff};
+use super::super::util::{complete_tags, require_staff, Context};
 
 const CANNOT_MESSAGE_ERROR: &str =
 	"❌ Cannot currently send messages to the user. This is most likely because:

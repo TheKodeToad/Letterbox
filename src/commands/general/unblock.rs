@@ -3,8 +3,7 @@ use poise::serenity_prelude as serenity;
 use crate::data::blocked_users;
 use crate::util::markdown;
 
-use super::util::require_staff;
-use super::util::Context;
+use super::super::util::{require_staff, Context};
 
 /// Unblock a user blocked using the block command.
 #[poise::command(slash_command, prefix_command, guild_only, check = "require_staff")]
