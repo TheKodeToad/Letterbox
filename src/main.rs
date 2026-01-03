@@ -8,12 +8,10 @@ use data::migrations;
 use error_handler::handle_error;
 use event_handlers::handle_event;
 use log::warn;
-use poise::{serenity_prelude as serenity, EditTracker};
+use poise::serenity_prelude as serenity;
 use tokio::signal::ctrl_c;
 #[cfg(target_family = "unix")]
 use tokio::signal::unix::{signal, SignalKind};
-#[cfg(target_family = "windows")]
-use tokio::signal::windows::ctrl_close;
 
 mod commands;
 mod config;
@@ -25,7 +23,7 @@ mod util;
 
 pub struct Data {
 	config: Config,
-	pg: tokio_postgres::Client,
+	pg: deadpool_postgres::Pool,
 }
 
 enum ShutdownReason {
@@ -48,9 +46,9 @@ async fn main() -> eyre::Result<()> {
 			dynamic_prefix: Some(|context| {
 				Box::pin(async move { Ok(Some(context.data.config.prefix.clone())) })
 			}),
-			edit_tracker: Some(Arc::from(EditTracker::for_timespan(Duration::from_secs(
-				60,
-			)))),
+			edit_tracker: Some(Arc::from(poise::EditTracker::for_timespan(
+				Duration::from_secs(60),
+			))),
 			..Default::default()
 		},
 		event_handler: |context, event, _framework, data| {
@@ -98,10 +96,9 @@ async fn setup(
 ) -> eyre::Result<Data> {
 	poise::builtins::register_globally(context, &framework.options().commands).await?;
 
-	let postgres_config = std::env::var("POSTGRES_CONNECTION")?;
+	let postgres_url = std::env::var("POSTGRES_CONNECTION")?;
 
 	let config_path = std::env::var("CONFIG_PATH").unwrap_or("config.toml".into());
-
 	let config = Config::new_from_file(Path::new(&config_path))?;
 
 	context
@@ -110,19 +107,21 @@ async fn setup(
 			&config.messages.status,
 		)));
 
-	let (mut pg_client, connection) =
-		tokio_postgres::connect(&postgres_config, tokio_postgres::NoTls).await?;
+	let cfg = deadpool_postgres::Config {
+		url: Some(postgres_url),
+		..Default::default()
+	};
+	let pool = cfg.create_pool(
+		Some(deadpool_postgres::Runtime::Tokio1),
+		tokio_postgres::NoTls,
+	)?;
 
-	tokio::spawn(async move {
-		connection.await.expect("Postgres connection error");
-	});
+	// FIXME: is there a better way
+	migrations::runner()
+		.run_async(&mut **pool.get().await?)
+		.await?;
 
-	migrations::runner().run_async(&mut pg_client).await?;
-
-	Ok(Data {
-		config,
-		pg: pg_client,
-	})
+	Ok(Data { config, pg: pool })
 }
 
 async fn handle_shutdown(shard_manager: Arc<serenity::ShardManager>, reason: ShutdownReason) {

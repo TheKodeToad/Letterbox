@@ -29,8 +29,10 @@ impl SentMessage {
 	}
 }
 
-pub async fn get(pg: &tokio_postgres::Client, id: u64) -> eyre::Result<Option<SentMessage>> {
-	let rows = pg
+pub async fn get(pool: &deadpool_postgres::Pool, id: u64) -> eyre::Result<Option<SentMessage>> {
+	let client = pool.get().await?;
+
+	let rows = client
 		.query(
 			r#"
 				SELECT * FROM "sent_messages"
@@ -40,8 +42,6 @@ pub async fn get(pg: &tokio_postgres::Client, id: u64) -> eyre::Result<Option<Se
 		)
 		.await?;
 
-	assert!(rows.len() <= 1);
-
 	if rows.is_empty() {
 		Ok(None)
 	} else {
@@ -50,10 +50,12 @@ pub async fn get(pg: &tokio_postgres::Client, id: u64) -> eyre::Result<Option<Se
 }
 
 pub async fn get_by_forwarded(
-	pg: &tokio_postgres::Client,
+	pool: &deadpool_postgres::Pool,
 	forwarded_message_id: u64,
 ) -> eyre::Result<Option<SentMessage>> {
-	let rows = pg
+	let client = pool.get().await?;
+
+	let rows = client
 		.query(
 			r#"
 				SELECT *
@@ -73,8 +75,10 @@ pub async fn get_by_forwarded(
 	}
 }
 
-pub async fn insert(pg: &tokio_postgres::Client, message: SentMessage) -> eyre::Result<()> {
-	pg.execute(
+pub async fn insert(pool: &deadpool_postgres::Pool, message: SentMessage) -> eyre::Result<()> {
+	let client = pool.get().await?;
+
+	client.execute(
 		r#"
 			INSERT INTO "sent_messages" ("id", "thread_id", "forwarded_message_id", "author_id", "anonymous", "image_filename")
 			VALUES ($1, $2, $3, $4, $5, $6)
@@ -93,8 +97,10 @@ pub async fn insert(pg: &tokio_postgres::Client, message: SentMessage) -> eyre::
 	Ok(())
 }
 
-pub async fn delete(pg: &tokio_postgres::Client, id: u64) -> eyre::Result<()> {
-	pg.execute(
+pub async fn delete(pool: &deadpool_postgres::Pool, id: u64) -> eyre::Result<()> {
+	let client = pool.get().await?;
+
+	client.execute(
 		r#"
 			DELETE FROM "sent_messages"
 			WHERE "id" = $1

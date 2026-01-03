@@ -1,7 +1,9 @@
 #![allow(clippy::cast_possible_wrap)]
 
-pub async fn add(pg: &tokio_postgres::Client, id: u64) -> eyre::Result<bool> {
-	let count = pg
+pub async fn add(pool: &deadpool_postgres::Pool, id: u64) -> eyre::Result<bool> {
+	let client = pool.get().await?;
+
+	let count = client
 		.execute(
 			r#"
 				INSERT INTO "blocked_users" ("id")
@@ -15,8 +17,10 @@ pub async fn add(pg: &tokio_postgres::Client, id: u64) -> eyre::Result<bool> {
 	Ok(count != 0)
 }
 
-pub async fn remove(pg: &tokio_postgres::Client, id: u64) -> eyre::Result<bool> {
-	let count = pg
+pub async fn remove(pool: &deadpool_postgres::Pool, id: u64) -> eyre::Result<bool> {
+	let client = pool.get().await?;
+
+	let count = client
 		.execute(
 			r#"
 				DELETE FROM "blocked_users"
@@ -29,8 +33,10 @@ pub async fn remove(pg: &tokio_postgres::Client, id: u64) -> eyre::Result<bool> 
 	Ok(count != 0)
 }
 
-pub async fn has(pg: &tokio_postgres::Client, id: u64) -> eyre::Result<bool> {
-	let rows = pg
+pub async fn has(pool: &deadpool_postgres::Pool, id: u64) -> eyre::Result<bool> {
+	let client = pool.get().await?;
+
+	let rows = client
 		.query(
 			r#"
 				SELECT 1 FROM "blocked_users"

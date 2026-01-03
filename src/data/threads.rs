@@ -26,8 +26,10 @@ impl Thread {
 	}
 }
 
-pub async fn get(pg: &tokio_postgres::Client, id: u64) -> eyre::Result<Option<Thread>> {
-	let rows = pg
+pub async fn get(pool: &deadpool_postgres::Pool, id: u64) -> eyre::Result<Option<Thread>> {
+	let client = pool.get().await?;
+
+	let rows = client
 		.query(
 			r#"
 				SELECT * FROM "threads"
@@ -47,10 +49,12 @@ pub async fn get(pg: &tokio_postgres::Client, id: u64) -> eyre::Result<Option<Th
 }
 
 pub async fn get_by_dm(
-	pg: &tokio_postgres::Client,
+	pool: &deadpool_postgres::Pool,
 	dm_channel_id: u64,
 ) -> eyre::Result<Option<Thread>> {
-	let rows = pg
+	let client = pool.get().await?;
+
+	let rows = client
 		.query(
 			r#"
 				SELECT * FROM "threads"
@@ -70,10 +74,12 @@ pub async fn get_by_dm(
 }
 
 pub async fn get_by_user(
-	pg: &tokio_postgres::Client,
+	pool: &deadpool_postgres::Pool,
 	user_id: u64,
 ) -> eyre::Result<Option<Thread>> {
-	let rows = pg
+	let client = pool.get().await?;
+
+	let rows = client
 		.query(
 			r#"
 				SELECT * FROM "threads"
@@ -92,34 +98,40 @@ pub async fn get_by_user(
 	}
 }
 
-pub async fn insert(pg: &tokio_postgres::Client, thread: Thread) -> eyre::Result<()> {
-	pg.query(
-		r#"
+pub async fn insert(pool: &deadpool_postgres::Pool, thread: Thread) -> eyre::Result<()> {
+	let client = pool.get().await?;
+
+	client
+		.query(
+			r#"
 			INSERT INTO "threads" ("id", "dm_channel_id", "user_id", "opened_by_id", "created_at")
 			VALUES ($1, $2, $3, $4, $5)
 		"#,
-		&[
-			&(thread.id as i64),
-			&(thread.dm_channel_id as i64),
-			&(thread.user_id as i64),
-			&(thread.opened_by_id as i64),
-			&thread.created_at,
-		],
-	)
-	.await?;
+			&[
+				&(thread.id as i64),
+				&(thread.dm_channel_id as i64),
+				&(thread.user_id as i64),
+				&(thread.opened_by_id as i64),
+				&thread.created_at,
+			],
+		)
+		.await?;
 
 	Ok(())
 }
 
-pub async fn delete(pg: &tokio_postgres::Client, id: u64) -> eyre::Result<()> {
-	pg.query(
-		r#"
+pub async fn delete(pool: &deadpool_postgres::Pool, id: u64) -> eyre::Result<()> {
+	let client = pool.get().await?;
+
+	client
+		.query(
+			r#"
 			DELETE FROM "threads"
 			WHERE "id" = $1
 		"#,
-		&[&(id as i64)],
-	)
-	.await?;
+			&[&(id as i64)],
+		)
+		.await?;
 
 	Ok(())
 }

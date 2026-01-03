@@ -23,8 +23,10 @@ impl ReceivedMessage {
 	}
 }
 
-pub async fn get(pg: &tokio_postgres::Client, id: u64) -> eyre::Result<Option<ReceivedMessage>> {
-	let rows = pg
+pub async fn get(pool: &deadpool_postgres::Pool, id: u64) -> eyre::Result<Option<ReceivedMessage>> {
+	let client = pool.get().await?;
+
+	let rows = client
 		.query(
 			r#"
 				SELECT *
@@ -44,8 +46,10 @@ pub async fn get(pg: &tokio_postgres::Client, id: u64) -> eyre::Result<Option<Re
 	}
 }
 
-pub async fn insert(pg: &tokio_postgres::Client, message: ReceivedMessage) -> eyre::Result<()> {
-	pg.execute(
+pub async fn insert(pool: &deadpool_postgres::Pool, message: ReceivedMessage) -> eyre::Result<()> {
+	let client = pool.get().await?;
+
+	client.execute(
 		r#"
 			INSERT INTO "received_messages" ("id", "thread_id", "forwarded_message_id", "image_filename")
 			VALUES ($1, $2, $3, $4)
