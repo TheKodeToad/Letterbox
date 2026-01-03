@@ -53,12 +53,12 @@ async fn handle_impl(
 		return Ok(());
 	}
 
-	let existing_thread = threads::get_by_dm(&data.pg, message.channel_id.get()).await?;
+	let existing_thread = threads::get_by_dm(&data.pg_pool, message.channel_id.get()).await?;
 
 	let mut thread = if let Some(existing_thread) = existing_thread {
 		serenity::ChannelId::new(existing_thread.id)
 	} else {
-		if blocked_users::has(&data.pg, message.author.id.get()).await? {
+		if blocked_users::has(&data.pg_pool, message.author.id.get()).await? {
 			return Ok(());
 		}
 
@@ -105,11 +105,11 @@ async fn handle_impl(
 		Err(err) => {
 			// matching all errors could result in a thread being erroneosly deleted (which is irreversible)
 			if let Some(UNKNOWN_CHANNEL) = get_json_error_code(&err) {
-				if blocked_users::has(&data.pg, message.author.id.get()).await? {
+				if blocked_users::has(&data.pg_pool, message.author.id.get()).await? {
 					return Ok(());
 				}
 
-				threads::delete(&data.pg, thread.get()).await?;
+				threads::delete(&data.pg_pool, thread.get()).await?;
 
 				thread = create_thread_from(context, message, data).await?;
 
@@ -123,7 +123,7 @@ async fn handle_impl(
 	};
 
 	received_messages::insert(
-		&data.pg,
+		&data.pg_pool,
 		ReceivedMessage {
 			id: message.id.get(),
 			thread_id: thread.get(),
@@ -174,7 +174,7 @@ async fn create_thread_from(
 		.create_forum_post(&context.http, forum_post_builder)
 		.await?;
 	threads::insert(
-		&data.pg,
+		&data.pg_pool,
 		Thread {
 			id: forum_post.id.get(),
 			dm_channel_id: message.channel_id.get(),

@@ -27,7 +27,7 @@ pub async fn handle(
 		return Ok(());
 	};
 
-	let Some(received_message) = received_messages::get(&data.pg, message.id.get()).await? else {
+	let Some(received_message) = received_messages::get(&data.pg_pool, message.id.get()).await? else {
 		return Ok(());
 	};
 

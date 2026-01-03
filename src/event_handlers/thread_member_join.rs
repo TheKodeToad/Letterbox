@@ -14,7 +14,7 @@ pub async fn handle(
 		return Ok(());
 	}
 
-	let Some(thread_data) = threads::get_by_user(&data.pg, member.user.id.get()).await? else {
+	let Some(thread_data) = threads::get_by_user(&data.pg_pool, member.user.id.get()).await? else {
 		return Ok(());
 	};
 

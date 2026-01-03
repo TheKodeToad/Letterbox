@@ -41,7 +41,7 @@ async fn block_impl(context: Context<'_>, user: serenity::User, silent: bool) ->
 		return Ok(());
 	}
 
-	let blocked = blocked_users::add(&context.data().pg, user.id.get()).await?;
+	let blocked = blocked_users::add(&context.data().pg_pool, user.id.get()).await?;
 
 	if !blocked {
 		context

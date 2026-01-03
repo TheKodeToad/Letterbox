@@ -23,7 +23,7 @@ mod util;
 
 pub struct Data {
 	config: Config,
-	pg: deadpool_postgres::Pool,
+	pg_pool: deadpool_postgres::Pool,
 }
 
 enum ShutdownReason {
@@ -121,7 +121,7 @@ async fn setup(
 		.run_async(&mut **pool.get().await?)
 		.await?;
 
-	Ok(Data { config, pg: pool })
+	Ok(Data { config, pg_pool: pool })
 }
 
 async fn handle_shutdown(shard_manager: Arc<serenity::ShardManager>, reason: ShutdownReason) {

@@ -45,7 +45,7 @@ async fn unblock_impl(
 		return Ok(());
 	}
 
-	let unblocked = blocked_users::remove(&context.data().pg, user.id.get()).await?;
+	let unblocked = blocked_users::remove(&context.data().pg_pool, user.id.get()).await?;
 
 	if !unblocked {
 		context

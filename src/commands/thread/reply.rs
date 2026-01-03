@@ -90,7 +90,7 @@ pub async fn anon_tag_reply(
 }
 
 async fn create_tag(context: Context<'_>, name: &str, anonymous: bool) -> eyre::Result<()> {
-	let tag = tags::get(&context.data().pg, name).await?;
+	let tag = tags::get(&context.data().pg_pool, name).await?;
 
 	match tag {
 		Some(message) => {
@@ -116,7 +116,7 @@ async fn create_tag(context: Context<'_>, name: &str, anonymous: bool) -> eyre::
 async fn create(context: Context<'_>, message: &str, anonymous: bool) -> eyre::Result<()> {
 	context.defer().await?;
 
-	let Some(thread_data) = threads::get(&context.data().pg, context.channel_id().get()).await?
+	let Some(thread_data) = threads::get(&context.data().pg_pool, context.channel_id().get()).await?
 	else {
 		context
 			.send(
@@ -198,7 +198,7 @@ async fn create(context: Context<'_>, message: &str, anonymous: bool) -> eyre::R
 	let source_message_handle = context.send(source_message_builder).await?;
 
 	sent_messages::insert(
-		&context.data().pg,
+		&context.data().pg_pool,
 		SentMessage {
 			id: source_message_handle.message().await?.id.get(),
 			thread_id: context.channel_id().get(),
