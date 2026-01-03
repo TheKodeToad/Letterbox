@@ -57,7 +57,7 @@
           pkgs = nixpkgsFor.${system};
         in
         {
-          module-test = pkgs.nixosTest (import ./nix/vm-test.nix { module = self.nixosModules.letterbox; });
+          module-test = pkgs.testers.nixosTest (import ./nix/vm-test.nix { module = self.nixosModules.letterbox; });
         }
       );
 
