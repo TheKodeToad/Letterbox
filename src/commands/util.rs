@@ -18,7 +18,7 @@ pub async fn require_staff(context: Context<'_>) -> eyre::Result<bool> {
 }
 
 pub async fn complete_tags(context: Context<'_>, partial: &str) -> Vec<String> {
-	match tags::search(&context.data().pg, partial).await {
+	match tags::search(&context.data().pg_pool, partial).await {
 		Ok(tags) => tags,
 		Err(error) => {
 			log::error!("Error completing tags: {error:?}");

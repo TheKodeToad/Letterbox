@@ -8,7 +8,7 @@ pub async fn handle(
 	data: &Data,
 ) -> eyre::Result<()> {
 	let Some(sent_message) =
-		sent_messages::get_by_forwarded(&data.pg, reaction.message_id.get()).await?
+		sent_messages::get_by_forwarded(&data.pg_pool, reaction.message_id.get()).await?
 	else {
 		return Ok(());
 	};

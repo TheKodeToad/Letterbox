@@ -6,7 +6,7 @@ use crate::{
 	util::json_error_codes::{get_json_error_code, UNKNOWN_CHANNEL},
 };
 
-use super::util::{require_staff, Context};
+use super::super::util::{require_staff, Context};
 
 /// Create a new mod-mail thread.
 #[poise::command(
@@ -34,7 +34,7 @@ pub async fn contact(
 		return Ok(());
 	}
 
-	if let Some(thread) = threads::get_by_user(&context.data().pg, user.id.get()).await? {
+	if let Some(thread) = threads::get_by_user(&context.data().pg_pool, user.id.get()).await? {
 		match serenity::ChannelId::new(thread.id)
 			.to_channel(&context.http())
 			.await
@@ -50,7 +50,7 @@ pub async fn contact(
 			}
 			Err(error) => {
 				if let Some(UNKNOWN_CHANNEL) = get_json_error_code(&error) {
-					threads::delete(&context.data().pg, thread.id).await?;
+					threads::delete(&context.data().pg_pool, thread.id).await?;
 				} else {
 					return Err(error.into());
 				}
@@ -95,7 +95,7 @@ pub async fn contact(
 		.await?;
 
 	threads::insert(
-		&context.data().pg,
+		&context.data().pg_pool,
 		Thread {
 			id: forum_post.id.get(),
 			dm_channel_id: dm_channel.id.get(),

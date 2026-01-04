@@ -3,8 +3,7 @@ use poise::serenity_prelude as serenity;
 use crate::data::blocked_users;
 use crate::util::markdown;
 
-use super::util::require_staff;
-use super::util::Context;
+use super::super::util::{require_staff, Context};
 
 /// Block a user from creating threads.
 #[poise::command(slash_command, prefix_command, guild_only, check = "require_staff")]
@@ -42,7 +41,7 @@ async fn block_impl(context: Context<'_>, user: serenity::User, silent: bool) ->
 		return Ok(());
 	}
 
-	let blocked = blocked_users::add(&context.data().pg, user.id.get()).await?;
+	let blocked = blocked_users::add(&context.data().pg_pool, user.id.get()).await?;
 
 	if !blocked {
 		context

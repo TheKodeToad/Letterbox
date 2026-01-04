@@ -26,7 +26,7 @@ pub async fn tag_set(
 ) -> eyre::Result<()> {
 	let content = content.replace("\\n", "\n");
 
-	tags::set(&context.data().pg, &name, &content).await?;
+	tags::set(&context.data().pg_pool, &name, &content).await?;
 
 	let safe_name = markdown::escape(&name);
 	context
@@ -51,7 +51,7 @@ pub async fn tag_delete(
 	context: Context<'_>,
 	#[autocomplete = "complete_tags"] name: String,
 ) -> eyre::Result<()> {
-	let deleted = tags::delete(&context.data().pg, &name).await?;
+	let deleted = tags::delete(&context.data().pg_pool, &name).await?;
 
 	let safe_name = markdown::escape(&name);
 	if deleted {

@@ -1,5 +1,7 @@
-pub async fn get(pg: &tokio_postgres::Client, name: &str) -> eyre::Result<Option<String>> {
-	let rows = pg
+pub async fn get(pool: &deadpool_postgres::Pool, name: &str) -> eyre::Result<Option<String>> {
+	let client = pool.get().await?;
+
+	let rows = client
 		.query(
 			r#"
 				SELECT "content" FROM "tags"
@@ -18,8 +20,10 @@ pub async fn get(pg: &tokio_postgres::Client, name: &str) -> eyre::Result<Option
 	}
 }
 
-pub async fn search(pg: &tokio_postgres::Client, filter: &str) -> eyre::Result<Vec<String>> {
-	let rows = pg
+pub async fn search(pool: &deadpool_postgres::Pool, filter: &str) -> eyre::Result<Vec<String>> {
+	let client = pool.get().await?;
+
+	let rows = client
 		.query(
 			r#"
 				SELECT "name" FROM "tags"
@@ -34,8 +38,12 @@ pub async fn search(pg: &tokio_postgres::Client, filter: &str) -> eyre::Result<V
 	Ok(rows.iter().map(|row| row.get("name")).collect())
 }
 
-pub async fn set(pg: &tokio_postgres::Client, name: &String, content: &String) -> eyre::Result<()> {
-	pg.execute(
+pub async fn set(
+	pool: &deadpool_postgres::Pool,
+ name: &String, content: &String) -> eyre::Result<()> {
+	let client = pool.get().await?;
+
+	client.execute(
 		r#"
 			INSERT INTO "tags" VALUES ($1, $2)
 			ON CONFLICT ("name") DO UPDATE SET "name" = $1, "content" = $2
@@ -47,10 +55,13 @@ pub async fn set(pg: &tokio_postgres::Client, name: &String, content: &String) -
 	Ok(())
 }
 
-pub async fn delete(pg: &tokio_postgres::Client, name: &String) -> eyre::Result<bool> {
-	let count = pg
+pub async fn delete(
+	pool: &deadpool_postgres::Pool,
+ name: &String) -> eyre::Result<bool> {
+	let client = pool.get().await?;
+
+	let count = client
 		.execute(
-			// RETURNING needed otherwise we can't check with tokio-postgres (AFAIK)
 			r#"
 				DELETE FROM "tags"
 				WHERE "name" = $1

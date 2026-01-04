@@ -4,9 +4,7 @@ use poise::serenity_prelude as serenity;
 use crate::data::sent_messages;
 use crate::data::threads;
 
-use super::util::require_staff;
-use super::util::Context;
-use super::util::PrefixContext;
+use super::super::util::{require_staff, Context, PrefixContext};
 
 /// Delete a mod-mail reply.
 #[poise::command(
@@ -52,14 +50,14 @@ pub async fn delete_context_menu(
 }
 
 async fn delete_impl(context: &Context<'_>, message_id: serenity::MessageId) -> eyre::Result<bool> {
-	let Some(sent_message) = sent_messages::get(&context.data().pg, message_id.get()).await? else {
+	let Some(sent_message) = sent_messages::get(&context.data().pg_pool, message_id.get()).await? else {
 		context
 			.say("❌ This message was not sent with the reply command or the thread was closed.")
 			.await?;
 		return Ok(false);
 	};
 
-	let dm_channel_id = threads::get(&context.data().pg, sent_message.thread_id)
+	let dm_channel_id = threads::get(&context.data().pg_pool, sent_message.thread_id)
 		.await?
 		.ok_or_eyre("Thread went missing!")?
 		.dm_channel_id;
@@ -75,7 +73,7 @@ async fn delete_impl(context: &Context<'_>, message_id: serenity::MessageId) -> 
 	thread
 		.delete_message(&context.http(), message_id.get())
 		.await?;
-	sent_messages::delete(&context.data().pg, sent_message.id).await?;
+	sent_messages::delete(&context.data().pg_pool, sent_message.id).await?;
 
 	Ok(true)
 }
