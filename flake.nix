@@ -38,13 +38,13 @@
               self.formatter.${system}
             ];
 
-            inputsFrom = [ self.packages.${pkgs.system}.letterbox ];
+            inputsFrom = [ self.packages.${system}.letterbox ];
             RUST_SRC_PATH = "${pkgs.rustPlatform.rustLibSrc}";
           };
         }
       );
 
-      formatter = forAllSystems (system: nixpkgsFor.${system}.nixfmt-rfc-style);
+      formatter = forAllSystems (system: nixpkgsFor.${system}.nixfmt-tree);
 
       nixosModules = {
         letterbox = import ./nix/module.nix self;
@@ -57,7 +57,9 @@
           pkgs = nixpkgsFor.${system};
         in
         {
-          module-test = pkgs.testers.nixosTest (import ./nix/vm-test.nix { module = self.nixosModules.letterbox; });
+          module-test = pkgs.testers.nixosTest (
+            import ./nix/vm-test.nix { module = self.nixosModules.letterbox; }
+          );
         }
       );
 
