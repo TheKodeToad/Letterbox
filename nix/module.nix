@@ -113,7 +113,7 @@ in
       after = [ "network.target" ] ++ optionals (cfg.createDatabaseLocally) [ "postgresql.service" ];
 
       environment = mkIf cfg.createDatabaseLocally {
-        POSTGRES_CONNECTION = "postgres://letterbox?host=/var/run/postgresql";
+        POSTGRES_CONNECTION = "postgres:///letterbox?host=/var/run/postgresql";
         CONFIG_PATH = tomlFormat.generate "letterbox-config.toml" cfg.settings;
       };
 
