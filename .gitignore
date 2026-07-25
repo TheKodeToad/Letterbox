@@ -3,3 +3,5 @@
 .vscode
 config.toml
 result
+.envrc
+.direnv/
