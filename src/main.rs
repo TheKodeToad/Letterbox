@@ -31,6 +31,14 @@ enum ShutdownReason {
 	CtrlC,
 }
 
+fn is_env_set(key: &str) -> eyre::Result<bool> {
+	match std::env::var(key) {
+		Ok(str) => Ok(!str.is_empty()),
+		Err(std::env::VarError::NotPresent) => Ok(false),
+		Err(err) => Err(err.into()),
+	}
+}
+
 #[tokio::main]
 async fn main() -> eyre::Result<()> {
 	dotenvy::dotenv().ok();
@@ -62,9 +70,13 @@ async fn main() -> eyre::Result<()> {
 		.setup(|context, _ready, framework| Box::pin(setup(context, framework)))
 		.build();
 
-	let intents = serenity::GatewayIntents::non_privileged()
-		| serenity::GatewayIntents::MESSAGE_CONTENT
-		| serenity::GatewayIntents::GUILD_MEMBERS;
+	let mut intents = serenity::GatewayIntents::non_privileged();
+	if is_env_set("DISCORD_MESSAGE_CONTENT_INTENT")? {
+		intents |= serenity::GatewayIntents::MESSAGE_CONTENT;
+	}
+	if is_env_set("DISCORD_GUILD_MEMBERS_INTENT")? {
+		intents |= serenity::GatewayIntents::GUILD_MEMBERS;
+	}
 
 	let mut client = serenity::ClientBuilder::new(bot_token, intents)
 		.framework(framework)
