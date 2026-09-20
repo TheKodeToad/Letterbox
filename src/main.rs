@@ -7,6 +7,7 @@ use config::Config;
 use data::migrations;
 use error_handler::handle_error;
 use event_handlers::handle_event;
+use eyre::eyre;
 use log::warn;
 use poise::serenity_prelude as serenity;
 use tokio::signal::ctrl_c;
@@ -62,9 +63,21 @@ async fn main() -> eyre::Result<()> {
 		.setup(|context, _ready, framework| Box::pin(setup(context, framework)))
 		.build();
 
-	let intents = serenity::GatewayIntents::non_privileged()
-		| serenity::GatewayIntents::MESSAGE_CONTENT
-		| serenity::GatewayIntents::GUILD_MEMBERS;
+	let extra_intents = std::env::var("DISCORD_ENABLE_PRIVILEGED_INTENTS")
+		.ok()
+		.unwrap_or_default()
+		.split(',')
+		.filter(|x| !x.is_empty())
+		.map(|x| match x {
+			"message_content" => Ok(serenity::GatewayIntents::MESSAGE_CONTENT),
+			"guild_members" => Ok(serenity::GatewayIntents::GUILD_MEMBERS),
+			x => Err(eyre!("cannot parse intent {x}")),
+		})
+		.try_fold(serenity::GatewayIntents::empty(), |result, x| {
+			eyre::Ok(result | x?)
+		})?;
+
+	let intents = serenity::GatewayIntents::non_privileged() | extra_intents;
 
 	let mut client = serenity::ClientBuilder::new(bot_token, intents)
 		.framework(framework)
@@ -121,7 +134,10 @@ async fn setup(
 		.run_async(&mut **pool.get().await?)
 		.await?;
 
-	Ok(Data { config, pg_pool: pool })
+	Ok(Data {
+		config,
+		pg_pool: pool,
+	})
 }
 
 async fn handle_shutdown(shard_manager: Arc<serenity::ShardManager>, reason: ShutdownReason) {
